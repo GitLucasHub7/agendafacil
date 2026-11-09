@@ -6,6 +6,8 @@ Construtor de páginas para pequenos negócios, com editor visual, rascunhos pri
 
 **Estado:** desenvolvimento e homologação. A versão local tem **230 testes aprovados**. O fluxo externo de pagamento ainda precisa de validação no Mercado Pago. A agenda apresentada nas páginas é uma prévia: reservas reais de horários ainda não foram implementadas.
 
+**Entrega de 09/11/2026:** demonstração em modo Spark publicada e verificada no Firebase, com cadastro, login e rascunhos privados. Os 18 recursos publicados foram conferidos contra a versão validada. Pagamentos permanecem desativados; o repositório continua usando apenas configuração demo.
+
 ## O que já funciona
 
 - Cadastro, login e recuperação de senha com Firebase Authentication.

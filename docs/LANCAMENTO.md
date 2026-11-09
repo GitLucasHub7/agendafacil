@@ -1,5 +1,7 @@
 # Passo a passo para colocar no ar
 
+**Situação em 09/11/2026:** o caminho de demonstração Spark abaixo já foi executado e o ciclo de rascunhos foi verificado no Firebase. O caminho completo de assinaturas permanece pendente. Nenhuma configuração real do ambiente é distribuída neste repositório.
+
 ## Caminho rápido: demonstração sem pagamentos
 
 1. Criar ou selecionar o projeto Firebase de desenvolvimento e habilitar E-mail/Senha e Firestore.

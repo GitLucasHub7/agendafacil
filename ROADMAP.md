@@ -7,6 +7,8 @@
 - [x] Testes de acesso indevido, cobrança duplicada, timeout, cancelamento e estorno.
 - [x] Configuração de exemplo e revisão dos arquivos destinados ao GitHub.
 - [x] Pipeline de testes preparado, sem publicação automática.
+- [x] Demonstração Spark publicada; cadastro, login e ciclo de rascunho verificados no Firebase.
+- [x] Acesso de outra conta e alteração direta do estado de publicação recusados no ambiente publicado.
 
 ## Homologação externa
 
