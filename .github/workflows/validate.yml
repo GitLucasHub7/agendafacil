@@ -1,0 +1,48 @@
+name: Validar projeto
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: 'true'
+      GCLOUD_PROJECT: demo-agendafacil
+      FIREBASE_CLI_DISABLE_UPDATE_CHECK: 'true'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Instalar ferramentas
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Instalar dependências das Functions
+        run: npm --prefix functions ci --ignore-scripts --no-audit --no-fund
+      - name: Conferir publicação e recursos
+        run: |
+          npm run check:publication
+          npm run check:assets
+      - name: Testar sem serviços reais
+        run: npm test
+      - name: Auditar dependências
+        run: |
+          npm audit --audit-level=moderate
+          npm --prefix functions audit --audit-level=moderate
