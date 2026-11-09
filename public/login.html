@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#6e56cf" />
+    <title>Entrar — AgendaFácil</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="auth.css" />
+  </head>
+  <body class="auth-body">
+    <main class="auth-shell">
+      <section class="auth-card" aria-labelledby="auth-title">
+        <a href="login.html" class="app-brand" aria-label="AgendaFácil"><span class="brand-symbol">a</span><span>agenda<span>fácil</span></span></a>
+        <h1 id="auth-title">Acesse sua conta</h1>
+        <p class="lead">Crie e gerencie os sites do seu negócio.</p>
+
+        <div class="auth-tabs" role="tablist" aria-label="Acesso">
+          <button type="button" role="tab" id="tab-signin" aria-selected="true" aria-controls="form-signin">Entrar</button>
+          <button type="button" role="tab" id="tab-signup" aria-selected="false" aria-controls="form-signup">Criar conta</button>
+        </div>
+
+        <p class="auth-message" id="auth-message" role="alert" aria-live="polite" hidden></p>
+
+        <form class="auth-form" id="form-signin" novalidate>
+          <label>E-mail<input id="signin-email" type="email" autocomplete="email" required /></label>
+          <label>Senha<input id="signin-password" type="password" autocomplete="current-password" required /></label>
+          <button class="auth-primary" type="submit">Entrar</button>
+          <button class="auth-link" type="button" id="goto-reset">Esqueci minha senha</button>
+        </form>
+
+        <form class="auth-form" id="form-signup" hidden novalidate>
+          <label>E-mail<input id="signup-email" type="email" autocomplete="email" required /></label>
+          <label>Senha (mínimo 8 caracteres)<input id="signup-password" type="password" autocomplete="new-password" minlength="8" required /></label>
+          <label>Repita a senha<input id="signup-password2" type="password" autocomplete="new-password" minlength="8" required /></label>
+          <button class="auth-primary" type="submit">Criar minha conta</button>
+        </form>
+
+        <form class="auth-form" id="form-reset" hidden novalidate>
+          <label>E-mail da sua conta<input id="reset-email" type="email" autocomplete="email" required /></label>
+          <button class="auth-primary" type="submit">Enviar link de recuperação</button>
+          <button class="auth-link" type="button" id="goto-signin">Voltar para entrar</button>
+        </form>
+      </section>
+    </main>
+    <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-check-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-functions-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="app-mode.js"></script>
+    <script src="auth-shared.js"></script>
+    <script src="login.js"></script>
+  </body>
+</html>

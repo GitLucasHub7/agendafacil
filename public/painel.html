@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#6e56cf" />
+    <title>Meus sites — AgendaFácil</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="auth.css" />
+  </head>
+  <body class="auth-body">
+    <header class="panel-header">
+      <a href="painel.html" class="app-brand" aria-label="AgendaFácil, meus sites"><span class="brand-symbol">a</span><span>agenda<span>fácil</span></span></a>
+      <div class="panel-user"><span class="env-info" id="env-info"></span><span id="user-email"></span><button class="btn secondary" type="button" id="logout-button">Sair</button></div>
+    </header>
+    <main class="panel-main">
+      <div class="panel-banner" id="verify-banner" role="status" hidden>
+        <strong>Confirme seu e-mail.</strong> Enviamos um link para <span id="verify-email"></span>. Você precisa confirmar para pagar e publicar.
+        <button class="auth-link" type="button" id="resend-verification">Reenviar e-mail</button>
+        <button class="auth-link" type="button" id="check-verification">Já confirmei</button>
+      </div>
+      <div class="panel-top">
+        <h1>Meus sites</h1>
+        <a class="btn" href="editor.html" id="new-site">+ Novo site</a>
+      </div>
+      <p class="auth-message" id="panel-message" role="status" aria-live="polite" hidden></p>
+      <p class="empty-state" id="loading-state" role="status">Carregando seus sites…</p>
+      <section class="site-grid" id="site-list" aria-label="Lista de sites"></section>
+      <div class="empty-state" id="empty-state" hidden>
+        <p>Você ainda não criou nenhum site.</p>
+        <a class="btn" href="editor.html">Criar meu primeiro site</a>
+      </div>
+      <section class="danger-zone" aria-labelledby="danger-title">
+        <h2 id="danger-title">Conta</h2>
+        <p>Excluir a conta apaga seus sites e rascunhos. Os registros de cobrança são mantidos sem identificação pessoal. É preciso não ter assinatura com acesso vigente.</p>
+        <button class="btn secondary" type="button" id="delete-account">Excluir minha conta</button>
+      </section>
+    </main>
+    <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-check-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-functions-compat.js"></script>
+    <script src="render-shared.js"></script>
+    <script src="site-store.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="app-mode.js"></script>
+    <script src="auth-shared.js"></script>
+    <script src="painel.js"></script>
+  </body>
+</html>

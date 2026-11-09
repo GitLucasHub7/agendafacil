@@ -1,0 +1,114 @@
+rules_version = '2';
+
+// Modelo de acesso (ver docs/ARQUITETURA.md):
+//  - sites/{siteId}        rascunhos e estado do site: SOMENTE o dono lê (get e list).
+//                          O dono pode gravar apenas o CONTEÚDO do rascunho (contentFields), validado aqui nas regras
+//                          (modo Spark, sem Cloud Functions). Tudo que é ESTADO (publicado, assinatura, endereço
+//                          reservado, hash, pagamento) só o servidor escreve (Functions/Admin SDK) e o navegador nunca
+//                          consegue alterar: published só pode ser false, e site publicado não aceita edição direta.
+//                          Limite de 10 sites por usuário: o ID do documento tem de ser <uid>s1 ... <uid>s10.
+//  - publicSites/{slug}    cópia pública sanitizada, criada só pelo webhook após pagamento aprovado.
+//                          Leitura por get (a página /s/{slug}); listagem negada.
+//  - subscriptions/{id}    assinatura mensal de UM site: o dono só LÊ (estado do plano no painel); escrita só servidor.
+//  - subscriptionInvoices  cobranças recorrentes e webhookEvents (log de notificações): somente servidor.
+//  - slugClaims/{slug}     reserva atômica de endereço público (só servidor); incidents/{id}: incidentes de cobrança (só servidor).
+//  - payments/{id}         legado (Pix avulso do modelo antigo): somente servidor.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---- Rascunhos gravados pelo dono (plano Spark). O servidor continua dono de todo o estado do site. ----
+    function contentFields() {
+      return ['segment', 'name', 'primary', 'background', 'logo', 'logoImage', 'schedule', 'work', 'start', 'end', 'interval'];
+    }
+    function initFields() {
+      return ['ownerUid', 'published', 'paymentStatus', 'createdAt', 'updatedAt'];
+    }
+    // Logo: ou imagem embutida (data URL png/jpeg/webp, até 700.000 caracteres) ou um ícone sem imagem.
+    // O CORPO da imagem é revalidado pelo servidor ao publicar e pelo renderizador ao exibir.
+    function validLogo(d) {
+      return (d.logo == 'upload'
+              && d.logoImage is string
+              && d.logoImage.size() <= 700000
+              && d.logoImage.split(',').size() == 2
+              && d.logoImage.split(',')[0] in ['data:image/png;base64', 'data:image/jpeg;base64', 'data:image/webp;base64'])
+          || (d.logo in ['initial', 'scissors', 'star'] && d.logoImage == '');
+    }
+    function validContent(d) {
+      return d.segment in ['barbershop', 'nails', 'salon', 'aesthetics', 'tattoo', 'other']
+          && d.name is string && d.name.size() >= 1 && d.name.size() <= 45
+          && d.name.matches('^[^\\x00-\\x1f\\x7f]+$')
+          && d.primary is string && d.primary.matches('^#[0-9a-fA-F]{6}$')
+          && d.background is string && d.background.matches('^#[0-9a-fA-F]{6}$')
+          && validLogo(d)
+          && d.schedule in ['semanal', 'mensal']
+          && d.work in ['solo', 'team']
+          && d.start is string && d.start.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$')
+          && d.end is string && d.end.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$')
+          && d.start < d.end
+          && d.interval in ['30', '45', '60'];
+    }
+
+    match /sites/{siteId} {
+      allow get, list: if request.auth != null && resource.data.ownerUid == request.auth.uid;
+
+      allow create: if request.auth != null
+          && request.auth.uid.matches('^[A-Za-z0-9]{20,36}$')
+          && siteId.matches('^' + request.auth.uid + 's([1-9]|10)$')
+          && request.resource.data.keys().hasOnly(contentFields().concat(initFields()))
+          && request.resource.data.keys().hasAll(contentFields().concat(initFields()))
+          && request.resource.data.ownerUid == request.auth.uid
+          && request.resource.data.published == false
+          && request.resource.data.paymentStatus == 'unpaid'
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.updatedAt == request.time
+          && validContent(request.resource.data);
+
+      allow update: if request.auth != null
+          && resource.data.ownerUid == request.auth.uid
+          && resource.data.get('published', false) == false
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(contentFields().concat(['updatedAt']))
+          && request.resource.data.updatedAt == request.time
+          && validContent(request.resource.data);
+
+      allow delete: if request.auth != null
+          && resource.data.ownerUid == request.auth.uid
+          && resource.data.get('published', false) == false
+          && resource.data.get('subscriptionId', null) == null;
+    }
+
+    match /publicSites/{slug} {
+      allow get: if true;
+      allow list: if false;
+      allow create, update, delete: if false;
+    }
+
+    match /subscriptions/{subscriptionId} {
+      allow get, list: if request.auth != null && resource.data.ownerUid == request.auth.uid;
+      allow create, update, delete: if false;
+    }
+
+    match /subscriptionInvoices/{invoiceId} {
+      allow read, write: if false;
+    }
+
+    match /webhookEvents/{eventId} {
+      allow read, write: if false;
+    }
+
+    match /slugClaims/{slug} {
+      allow read, write: if false;
+    }
+
+    match /incidents/{incidentId} {
+      allow read, write: if false;
+    }
+
+    match /payments/{paymentId} {
+      allow read, write: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

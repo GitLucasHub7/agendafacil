@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#6e56cf" />
+    <title>Crie seu site de agendamentos — AgendaFácil</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="checkout.css" />
+    <link rel="stylesheet" href="auth.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <a href="painel.html" class="app-brand" aria-label="AgendaFácil, meus sites"><span class="brand-symbol">a</span><span>agenda<span>fácil</span></span></a>
+      <div class="header-progress"><span id="progress-label">PASSO 1 DE 4</span><div><i id="progress-bar"></i></div></div>
+      <div class="header-account"><span class="env-info" id="env-info"></span><span class="save-status" id="save-status" role="status" aria-live="polite"></span><a class="help-button" href="painel.html">Meus sites</a> <button class="help-button" id="help-button">Precisa de ajuda?</button> <button class="help-button" id="logout-button" type="button">Sair</button></div>
+    </header>
+
+    <main class="builder-shell">
+      <aside class="builder-sidebar">
+        <div class="sidebar-copy"><p>CRIE EM POUCOS MINUTOS</p><h1>Seu site.<br><em>Do seu jeito.</em></h1><span>Escolha o que combina com seu negócio. A prévia muda enquanto você cria.</span></div>
+        <nav class="step-navigation" aria-label="Etapas de criação">
+          <button class="step-link active" data-step-link="1"><span>01</span><strong>Seu negócio<small>Segmento e nome</small></strong><b>✓</b></button>
+          <button class="step-link" data-step-link="2"><span>02</span><strong>Sua identidade<small>Logo e cores</small></strong><b>✓</b></button>
+          <button class="step-link" data-step-link="3"><span>03</span><strong>Sua agenda<small>Jeito de atender</small></strong><b>✓</b></button>
+          <button class="step-link" data-step-link="4"><span>04</span><strong>Publicar<small>Seu site pronto</small></strong><b>✓</b></button>
+        </nav>
+        <div class="sidebar-foot"><span>✓</span><p>Seu rascunho é salvo na sua conta.</p></div>
+      </aside>
+
+      <section class="builder-content">
+        <div class="mobile-stepper"><span id="mobile-step-number">1/4</span><div><i id="mobile-progress"></i></div></div>
+
+        <section class="builder-step active" data-step="1">
+          <div class="step-intro"><p>VAMOS COMEÇAR</p><h2>Qual é o seu <em>negócio?</em></h2><span>Isso deixa seu site com os textos e serviços certos desde o início.</span></div>
+          <div class="segment-grid" id="segment-grid">
+            <button class="segment-card selected" data-segment="barbershop"><span class="segment-icon">✂</span><strong>Barbearia</strong><small>Cortes, barba e estilo</small></button>
+            <button class="segment-card" data-segment="nails"><span class="segment-icon">✦</span><strong>Manicure</strong><small>Unhas e cuidados</small></button>
+            <button class="segment-card" data-segment="salon"><span class="segment-icon">◒</span><strong>Salão de beleza</strong><small>Cabelo e beleza</small></button>
+            <button class="segment-card" data-segment="aesthetics"><span class="segment-icon">◌</span><strong>Estética</strong><small>Tratamentos e bem-estar</small></button>
+            <button class="segment-card" data-segment="tattoo"><span class="segment-icon">✧</span><strong>Tatuagem</strong><small>Arte e personalidade</small></button>
+            <button class="segment-card" data-segment="other"><span class="segment-icon">＋</span><strong>Outro serviço</strong><small>Personalize como quiser</small></button>
+          </div>
+          <div class="field-card name-card"><label for="business-name">Como seu negócio se chama?</label><div class="text-field"><span id="name-field-icon">✂</span><input id="business-name" maxlength="45" value="Maicon do Corte" placeholder="Ex.: Studio da Ana" /></div><small>Esse nome aparece no topo do seu site.</small></div>
+        </section>
+
+        <section class="builder-step" data-step="2" hidden>
+          <div class="step-intro"><p>DEIXE COM A SUA CARA</p><h2>Vamos criar sua <em>identidade.</em></h2><span>Escolha uma marca, cores e um estilo que seus clientes vão reconhecer.</span></div>
+          <div class="identity-layout">
+            <div class="identity-block"><div class="block-title"><strong>Sua logo</strong><small>Escolha uma opção ou envie a sua.</small></div><div class="logo-options" id="logo-options"><button class="logo-choice selected" data-logo="initial"><span class="logo-initial">M</span><small>Inicial</small></button><button class="logo-choice" data-logo="scissors"><span>✂</span><small>Clássica</small></button><button class="logo-choice" data-logo="star"><span>✦</span><small>Minimalista</small></button><label class="logo-upload"><input id="logo-upload" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" /><span>↑</span><small>Enviar logo</small></label></div></div>
+            <div class="identity-block"><div class="block-title"><strong>Cor principal</strong><small>Ela aparece nos detalhes e botões.</small></div><div class="palette" id="primary-palette"><button class="color-dot selected" data-color="#C89B3C" style="--dot:#C89B3C" aria-label="Dourado"></button><button class="color-dot" data-color="#6E56CF" style="--dot:#6E56CF" aria-label="Roxo"></button><button class="color-dot" data-color="#E06C75" style="--dot:#E06C75" aria-label="Rosa"></button><button class="color-dot" data-color="#23856D" style="--dot:#23856D" aria-label="Verde"></button><button class="color-dot" data-color="#E45C36" style="--dot:#E45C36" aria-label="Laranja"></button><label class="color-picker"><input id="primary-color" type="color" value="#C89B3C" /><span>+</span></label></div></div>
+            <div class="identity-block"><div class="block-title"><strong>Cor de fundo</strong><small>O tom que dá clima ao seu site.</small></div><div class="background-options" id="background-options"><button class="background-choice selected" data-background="#161514" style="--background:#161514"><span></span><small>Escuro</small></button><button class="background-choice" data-background="#FEFCF7" style="--background:#FEFCF7"><span></span><small>Claro</small></button><button class="background-choice" data-background="#201B2E" style="--background:#201B2E"><span></span><small>Noturno</small></button><button class="background-choice" data-background="#173932" style="--background:#173932"><span></span><small>Natural</small></button></div></div>
+          </div>
+          <div class="tip-callout"><span>✦</span><p><b>Dica:</b> uma logo simples com as cores certas já faz seu negócio parecer muito mais profissional.</p></div>
+        </section>
+
+        <section class="builder-step" data-step="3" hidden>
+          <div class="step-intro"><p>ORGANIZE SEU ATENDIMENTO</p><h2>Como funciona sua <em>agenda?</em></h2><span>Essas escolhas definem como seus clientes encontram um horário no site.</span></div>
+          <div class="settings-stack">
+            <div class="setting-card"><div class="setting-title"><span class="setting-number">1</span><div><strong>Como os horários aparecem?</strong><small>Escolha a melhor forma para seus clientes.</small></div></div><div class="choice-row" id="schedule-type"><button class="choice-card selected" data-schedule="semanal"><span>▦</span><b>Semanal</b><small>Mostra os próximos dias.</small></button><button class="choice-card" data-schedule="mensal"><span>▤</span><b>Mensal</b><small>Mostra um calendário completo.</small></button></div></div>
+            <div class="setting-card"><div class="setting-title"><span class="setting-number">2</span><div><strong>Como você atende?</strong><small>Isso ajuda a montar sua agenda.</small></div></div><div class="choice-row" id="work-style"><button class="choice-card selected" data-work="solo"><span>●</span><b>Eu mesmo(a)</b><small>Uma agenda só para mim.</small></button><button class="choice-card" data-work="team"><span>●●</span><b>Com equipe</b><small>Clientes escolhem o profissional.</small></button></div></div>
+            <div class="setting-card compact"><div class="setting-title"><span class="setting-number">3</span><div><strong>Seus horários</strong><small>Ajuste antes de publicar.</small></div></div><div class="hours-grid"><label>Começo<select id="work-start"><option value="08:00">08:00</option><option value="09:00" selected>09:00</option><option value="10:00">10:00</option></select></label><label>Final<select id="work-end"><option value="18:00">18:00</option><option value="19:00">19:00</option><option value="20:00" selected>20:00</option><option value="21:00">21:00</option></select></label><label>Intervalo<select id="work-interval"><option value="30" selected>30 minutos</option><option value="45">45 minutos</option><option value="60">1 hora</option></select></label></div></div>
+          </div>
+        </section>
+
+        <section class="builder-step publish-step" data-step="4" hidden>
+          <div class="ready-symbol">✓</div><p>PRONTINHO</p><h2>Seu site já tem<br><em>a sua cara.</em></h2><span>Revise a prévia ao lado. Quando estiver feliz com ela, é só publicar.</span>
+          <div class="site-address"><span>Seu endereço</span><strong id="published-address">maicon-do-corte</strong><button id="copy-link" title="Copiar endereço">⧉</button></div>
+          <div class="publish-checklist"><p><span>✓</span> Identidade e logo escolhidas</p><p><span>✓</span> Agenda configurada</p><p><span>✓</span> Pronto para receber clientes</p></div>
+          <p class="verify-notice" id="mode-notice" role="status" hidden></p>
+          <p class="verify-notice" id="published-banner" role="status" hidden></p>
+          <button class="publish-button" id="publish-button">Publicar e ativar meu site <span>→</span></button>
+          <small class="publish-note">O pagamento é finalizado com segurança no Mercado Pago.</small>
+        </section>
+
+        <footer class="builder-footer"><button class="back-button" id="back-button" hidden>← Voltar</button><span></span><button class="next-button" id="next-button">Continuar <b>→</b></button></footer>
+      </section>
+
+      <aside class="preview-column">
+        <div class="preview-top"><div><span class="live-dot"></span> PRÉVIA AO VIVO</div><button id="expand-preview" aria-label="Ampliar prévia">↗</button></div>
+        <div class="preview-frame">
+          <div class="browser-bar"><i></i><i></i><i></i><span>seusite.com.br</span></div>
+          <article class="site-preview" id="site-preview">
+            <div class="preview-site-nav"><div class="preview-logo" id="preview-logo"><span id="preview-logo-content">M</span></div><strong id="preview-name-nav">Maicon do Corte</strong><small>☰</small></div>
+            <div class="preview-hero"><p id="preview-segment-label">BARBEARIA</p><h3 id="preview-title">O seu estilo,<br><em>no seu tempo.</em></h3><span id="preview-subtitle">Agende seu horário online, sem complicação.</span><button>Agendar agora <b>→</b></button></div>
+            <div class="preview-services"><p>SERVIÇOS</p><div id="preview-service-list"></div></div>
+            <div class="preview-booking"><p>AGENDE SEU HORÁRIO</p><strong id="preview-booking-title">Escolha um dia</strong><div class="preview-dates" id="preview-dates"></div><button id="preview-booking-button">Ver horários disponíveis</button></div>
+            <div class="preview-footer"><span id="preview-footer-logo">M</span><b id="preview-footer-name">Maicon do Corte</b><small>Feito com AgendaFácil</small></div>
+          </article>
+        </div>
+        <p class="preview-caption">É assim que seus clientes verão o seu site.</p>
+      </aside>
+    </main>
+
+    <dialog class="preview-modal" id="preview-modal"><button id="close-preview" aria-label="Fechar prévia">×</button><div id="modal-preview-copy"></div></dialog>
+    <dialog class="checkout-modal" id="checkout-modal" data-mp-subscriptions-page="without-plan-pending">
+      <button class="close-checkout" id="close-checkout" aria-label="Fechar assinatura">×</button>
+      <div class="checkout-brand"><span class="brand-symbol">a</span><strong>agendafácil</strong><small>ASSINATURA SEGURA</small></div>
+      <div class="checkout-heading"><p>ATIVAR MEU SITE</p><h2>Falta pouco para<br><em>começar a vender.</em></h2><span>Seu site é publicado assim que o primeiro pagamento for confirmado pelo Mercado Pago.</span></div>
+      <div class="checkout-order"><div><span>Assinatura mensal do site</span><small>Site, agenda online e personalização</small></div><strong>R$ 21,90<small>/mês</small></strong></div>
+      <div class="field-card email-card"><label for="payer-email">E-mail da sua conta (recibo e confirmação)</label><div class="text-field"><input id="payer-email" type="email" readonly /></div><p class="verify-notice" id="verify-notice" role="alert" hidden>Confirme seu e-mail para assinar. Enviamos um link para a sua caixa de entrada. <button class="auth-link" type="button" id="resend-verification">Reenviar e-mail</button></p></div>
+      <div id="subscription-area"><button class="pay-button" id="start-subscription" data-mp-subscription-cta="without-plan-pending">Assinar e continuar no Mercado Pago <span>→</span></button></div>
+      <p class="checkout-security">🔒 Você conclui o pagamento no ambiente seguro do Mercado Pago; nenhum dado de cartão passa pelo AgendaFácil. A cobrança é mensal e recorrente (R$ 21,90 por site), com os meios de pagamento habilitados pelo Mercado Pago para assinaturas. Você pode cancelar quando quiser: o site continua no ar até o fim do período já pago. Se um pagamento falhar, o site continua no ar por 7 dias de carência.</p>
+    </dialog>
+    <div class="toast" id="toast" role="status"></div>
+    <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-check-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-functions-compat.js"></script>
+    <script src="render-shared.js"></script>
+    <script src="site-store.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="app-mode.js"></script>
+    <script src="auth-shared.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

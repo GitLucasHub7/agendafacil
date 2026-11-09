@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Carregando…</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+    <style>
+      /* Ajustes só pra essa página: o site real ocupa a tela inteira,
+         não o mockup pequeno de telefone usado dentro do construtor. */
+      body { background: #fff; }
+      #site-loading, #site-not-found {
+        display: grid; place-items: center; min-height: 100vh; padding: 40px;
+        text-align: center; font-family: "DM Sans", Arial, sans-serif;
+      }
+      #site-loading { color: #6e56cf; }
+      #site-not-found { color: #79746b; }
+      #site-not-found h1 { margin: 0 0 10px; color: #25221d; font-family: "Playfair Display", Georgia, serif; }
+      #site-preview.site-preview { max-width: 480px; margin: 0 auto; min-height: 100vh; }
+    </style>
+  </head>
+  <body>
+    <div id="site-loading">Carregando site…</div>
+
+    <div id="site-not-found" hidden>
+      <div>
+        <h1>Site não encontrado</h1>
+        <p>Esse endereço não existe ou o site ainda não foi publicado.</p>
+      </div>
+    </div>
+
+    <article class="site-preview" id="site-preview" hidden>
+      <div class="preview-site-nav"><div class="preview-logo" id="preview-logo"><span id="preview-logo-content">M</span></div><strong id="preview-name-nav"></strong><small>☰</small></div>
+      <div class="preview-hero"><p id="preview-segment-label"></p><h3 id="preview-title"></h3><span id="preview-subtitle"></span><button id="hero-cta">Agendar agora <b>→</b></button></div>
+      <div class="preview-services"><p>SERVIÇOS</p><div id="preview-service-list"></div></div>
+      <div class="preview-booking"><p>AGENDE SEU HORÁRIO</p><strong id="preview-booking-title">Escolha um dia</strong><div class="preview-dates" id="preview-dates"></div><button id="preview-booking-button">Ver horários disponíveis</button></div>
+      <div class="preview-footer"><span id="preview-footer-logo"></span><b id="preview-footer-name"></b><small>Feito com AgendaFácil</small></div>
+    </article>
+
+    <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore-compat.js"></script>
+    <script src="/render-shared.js"></script>
+    <script src="/firebase-config.js"></script>
+    <script src="/site.js"></script>
+  </body>
+</html>

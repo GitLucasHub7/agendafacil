@@ -1,0 +1,6 @@
+{
+  "projects": {
+    "default": "demo-agendafacil",
+    "dev": "demo-agendafacil"
+  }
+}

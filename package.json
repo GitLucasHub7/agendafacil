@@ -1,0 +1,28 @@
+{
+  "name": "agendafacil",
+  "private": true,
+  "description": "AgendaFácil — testes e ferramentas de desenvolvimento",
+  "scripts": {
+    "check:publication": "node scripts/check-publication.js",
+    "test:unit": "node --test \"tests/unit/*.test.js\"",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-agendafacil \"node --test --test-concurrency=1 tests/rules/*.test.js\"",
+    "test": "npm run test:unit && npm run test:rules && npm run test:local",
+    "emulators": "node scripts/run-local.js",
+    "preview": "node scripts/run-local.js",
+    "test:local": "node scripts/run-local.js --test",
+    "check:env": "node scripts/check-env.js",
+    "check:assets": "node scripts/check-assets.js"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "5.0.2",
+    "firebase": "12.19.0",
+    "firebase-tools": "15.35.0",
+    "jsdom": "^25.0.0"
+  },
+  "overrides": {
+    "@grpc/grpc-js": "1.14.7",
+    "glob": { ".": "14.0.4", "minimatch": "11.0.5" },
+    "gaxios": { "uuid": "11.1.1" },
+    "@google-cloud/pubsub": { "@opentelemetry/core": "2.12.0" }
+  }
+}
