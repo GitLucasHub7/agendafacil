@@ -1,13 +1,14 @@
 # Mercado Pago: preparação e limites
 
-## Estado verificado em 09/11/2026
+## Estado verificado em 16/11/2026
 
 - Aplicação existente com produto **Assinaturas**.
 - Descrição da aplicação e categoria **Serviços de TI** salvas no painel.
 - Contas de teste de vendedor e comprador já existentes; não foi necessário criar duplicatas.
 - Nenhum webhook configurado no painel consultado.
 - Nenhum pagamento externo ou assinatura de teste executado nesta etapa.
-- Firebase permanece no Spark; as Functions de pagamento ainda não foram publicadas.
+- Firebase está no Blaze, com alertas mensais de consumo configurados. A interface pública permanece em modo de demonstração; as Functions de pagamento ainda não foram publicadas.
+- Serviços necessários ao backend habilitados. As duas credenciais do Mercado Pago ainda precisam ser cadastradas no Secret Manager; seus valores não foram consultados.
 
 Essas verificações confirmam a preparação da conta, não o funcionamento dos pagamentos de ponta a ponta. IDs de conta, credenciais e capturas do painel não são publicados neste repositório.
 
@@ -19,7 +20,7 @@ O servidor controla preço e referência do site. O retorno do checkout não lib
 
 ## Próximas etapas para homologação
 
-1. Habilitar o backend de testes no Firebase com Blaze, orçamento e limites revisados, mantendo a interface pública em Spark até concluir a validação.
+1. Blaze e alertas de orçamento habilitados. Manter a interface pública em Spark até concluir a validação do backend de testes.
 2. Para Assinaturas, seguir a orientação exibida no painel: usar as **credenciais produtivas da conta de vendedor de teste**, e um comprador de teste distinto. A palavra “produtivas” nesse contexto não significa usar a conta real do vendedor; o prefixo do token sozinho não identifica um ambiente seguro.
 3. Inserir `MERCADOPAGO_ACCESS_TOKEN` somente no Secret Manager por canal seguro. Não copiar valores para o chat, frontend, Git, documentação ou logs.
 4. Coordenar a publicação de `paymentWebhook` e a configuração da assinatura secreta. Usar a URL HTTPS efetivamente confirmada pelo deploy. Não cadastrar uma URL estimada, uma página do Hosting ou um endpoint ainda inexistente. Não desativar a validação da assinatura para facilitar essa etapa.

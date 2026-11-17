@@ -1,6 +1,6 @@
 # Passo a passo para colocar no ar
 
-**Situação em 09/11/2026:** o caminho de demonstração Spark abaixo já foi executado e o ciclo de rascunhos foi verificado no Firebase. O caminho completo de assinaturas permanece pendente. Nenhuma configuração real do ambiente é distribuída neste repositório.
+**Situação em 16/11/2026:** Blaze ativo e alertas de consumo configurados. A demonstração está disponível em [agendafacil-online.web.app](https://agendafacil-online.web.app), com os 18 arquivos públicos conferidos e domínio autorizado para login. Os 230 testes locais passaram; a auditoria das dependências não apontou vulnerabilidades após a atualização das dependências de desenvolvimento. A interface continua em modo de demonstração, aguardando credenciais e testes externos de pagamentos. Nenhuma credencial ou configuração privada do ambiente é distribuída neste repositório.
 
 ## Caminho rápido: demonstração sem pagamentos
 
