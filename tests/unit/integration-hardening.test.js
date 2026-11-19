@@ -105,7 +105,7 @@ test("busca incompleta ou sem parâmetros falha sem afirmar ausência de assinat
 });
 
 test("paginação de cobranças inclui todos os registros, mesmo além de cinquenta", async () => {
-  const p = createSubscriptionProvider("FAKE", sdkFor(async ({ options }) => ({ paging: { total: 51 }, results: Array.from({ length: options.offset === 0 ? 50 : 1 }, (_, i) => ({ id: options.offset + i, preapproval_id: "pre" })) })));
+  const p = createSubscriptionProvider("FAKE", sdkFor(async ({ options }) => ({ paging: { total: 51 }, results: Array.from({ length: Math.min(options.limit, 51 - options.offset) }, (_, i) => ({ id: options.offset + i, preapproval_id: "pre" })) })));
   assert.equal((await p.searchInvoices({ preapprovalId: "pre" })).length, 51);
 });
 

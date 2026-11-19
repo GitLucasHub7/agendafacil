@@ -63,6 +63,21 @@ test("normalizadores toleram campos ausentes", () => {
   assert.equal(normalizePreapproval({ id: 1, external_reference: 0 }).externalReference, "0");
 });
 
+test("busca de faturas usa páginas de 20 e não perde a segunda página", async () => {
+  const sdk = fakeSdk();
+  const offsets = [];
+  sdk.Invoice.prototype.search = async ({ options }) => {
+    assert.equal(options.limit, 20, "limite aceito pela API de cobranças");
+    assert.equal(options.preapproval_id, "123");
+    offsets.push(options.offset);
+    return { paging: { total: 21 }, results: Array.from({ length: options.offset === 0 ? 20 : 1 }, (_, i) => ({ id: options.offset + i, preapproval_id: "123" })) };
+  };
+  const invoices = await createSubscriptionProvider("FAKE", sdk).searchInvoices({ preapprovalId: "123" });
+  assert.deepEqual(offsets, [0, 20]);
+  assert.equal(invoices.length, 21);
+  assert.equal(invoices[20].id, "20");
+});
+
 test("cancelamento só é confirmado quando o gateway retorna estado cancelado", async () => {
   const sdk = fakeSdk();
   sdk.PreApproval.prototype.update = async () => ({ id: "123", status: "authorized" });

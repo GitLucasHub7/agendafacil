@@ -52,9 +52,8 @@ function createSubscriptionProvider(accessToken, sdk = require("mercadopago")) {
   const payments = new sdk.Payment(config);
 
   // Uma página vazia/parcial não pode ocultar uma assinatura e liberar cobrança duplicada.
-  async function searchAll(client, options, stopWhen) {
+  async function searchAll(client, options, stopWhen, limit = 50) {
     const result = [];
-    const limit = 50;
     for (let offset = 0; offset < 1000; offset += limit) {
       const response = await client.search({ options: { ...options, limit, offset } });
       if (!response || !Array.isArray(response.results)) throw new Error("Resposta de busca incompleta do Mercado Pago.");
@@ -123,10 +122,11 @@ function createSubscriptionProvider(accessToken, sdk = require("mercadopago")) {
     },
 
     async searchInvoices({ preapprovalId, paymentId }) {
-      const options = { limit: 50 };
+      const options = {};
       if (preapprovalId) options.preapproval_id = String(preapprovalId);
       if (paymentId) options.payment_id = Number(paymentId);
-      return (await searchAll(invoices, options)).map(normalizeInvoice);
+      // Authorized payments uses pages of 20; 50 is rejected by the live API.
+      return (await searchAll(invoices, options, undefined, 20)).map(normalizeInvoice);
     },
 
     async getPayment(id) {

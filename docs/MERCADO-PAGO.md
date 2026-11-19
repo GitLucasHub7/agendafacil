@@ -1,16 +1,17 @@
-# Mercado Pago: preparação e limites
+# Mercado Pago: homologação de assinaturas
 
-## Estado verificado em 16/11/2026
+## Estado verificado em 19/11/2026
 
-- Aplicação existente com produto **Assinaturas**.
-- Descrição da aplicação e categoria **Serviços de TI** salvas no painel.
-- Contas de teste de vendedor e comprador já existentes; não foi necessário criar duplicatas.
-- Nenhum webhook configurado no painel consultado.
-- Nenhum pagamento externo ou assinatura de teste executado nesta etapa.
-- Firebase está no Blaze, com alertas mensais de consumo configurados. A interface pública permanece em modo de demonstração; as Functions de pagamento ainda não foram publicadas.
-- Serviços necessários ao backend habilitados. As duas credenciais do Mercado Pago ainda precisam ser cadastradas no Secret Manager; seus valores não foram consultados.
+- Firebase Blaze ativo; nove Functions de desenvolvimento publicadas.
+- Credenciais da conta de vendedor de teste e assinatura do webhook cadastradas no Secret Manager, sem exposição dos valores.
+- Webhook assinado recebido e validado pelo backend.
+- Checkout executado com comprador distinto e cartão fictício: aprovação de R$ 21,90 exibida pelo Mercado Pago.
+- A aprovação revelou uma falha de consulta: a busca de faturas enviava limite de 50 registros, rejeitado pela API. O provider foi corrigido para páginas de 20, mantendo a leitura das páginas seguintes.
+- Os 211 testes unitários passaram, incluindo regressão da paginação. Após publicar a correção, a sincronização autenticada reconheceu a assinatura como ativa e publicou o site de teste. O cancelamento foi confirmado no gateway e no Firebase. Checkout aprovado sozinho não libera acesso.
+- As sete verificações negativas do backend passaram após o deploy: chamadas sem autenticação e webhook sem assinatura retornam 401. Reentrega após falha, recusa e estorno ainda exigem homologação externa.
+- A interface pública continua em Spark, com cobranças desabilitadas. Homologação completa e lançamento comercial ainda não concluídos.
 
-Essas verificações confirmam a preparação da conta, não o funcionamento dos pagamentos de ponta a ponta. IDs de conta, credenciais e capturas do painel não são publicados neste repositório.
+IDs de contas/transações, credenciais e capturas do painel não são publicados neste repositório.
 
 ## Contrato usado pelo código
 
@@ -29,6 +30,6 @@ O servidor controla preço e referência do site. O retorno do checkout não lib
 7. Executar o fluxo com vendedor, comprador e cartão de teste: criação, aprovação/recusa, retorno, cancelamento, reentrega e conciliação. Confirmar que assinaturas de teste remanescentes foram canceladas.
 8. Somente após a homologação preparar a aplicação/credenciais reais e a publicação comercial, conforme [Lançamento](LANCAMENTO.md).
 
-As etapas que dependem de credenciais e backend continuam pendentes. Não cadastrar cobranças reais para comprovar uma integração ainda em preparação.
+Credenciais e backend de testes já estão disponíveis. As etapas abaixo servem como roteiro de reprodução; a aceitação final depende da conciliação, cancelamento e demais cenários externos. Não usar cobranças reais nesta homologação.
 
 Referência da solução: [Assinaturas — Mercado Pago](https://www.mercadopago.com.br/developers/pt/docs/subscriptions/landing).
