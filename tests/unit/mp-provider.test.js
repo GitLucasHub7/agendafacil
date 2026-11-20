@@ -13,7 +13,7 @@ function fakeSdk() {
   }
   class Invoice {
     async get(a) { calls.push(["inv.get", a]); return { id: 9, preapproval_id: 123, status: "processed", transaction_amount: 21.9, currency_id: "BRL", debit_date: "2026-02-01T10:00:00.000-03:00", retry_attempt: 2, payment: { id: 777, status: "approved", status_detail: "accredited" } }; }
-    async search(a) { calls.push(["inv.search", a]); return { results: [{ id: 1, preapproval_id: 123, transaction_amount: 21.9, payment: { id: 5, status: "rejected" } }] }; }
+    async search(a) { calls.push(["inv.search", a]); return { paging: { total: 1, limit: 20 }, results: [{ id: 1, preapproval_id: 123, transaction_amount: 21.9, payment: { id: 5, status: "rejected" } }] }; }
   }
   class Payment { async get(a) { calls.push(["pay.get", a]); return { id: 777, status: "refunded", status_detail: "refunded", transaction_amount: 21.9 }; } }
   return { MercadoPagoConfig, PreApproval, Invoice, Payment, calls };
@@ -63,14 +63,14 @@ test("normalizadores toleram campos ausentes", () => {
   assert.equal(normalizePreapproval({ id: 1, external_reference: 0 }).externalReference, "0");
 });
 
-test("busca de faturas usa páginas de 20 e não perde a segunda página", async () => {
+test("busca de faturas usa paginação padrão sem limite explícito e não perde a segunda página", async () => {
   const sdk = fakeSdk();
   const offsets = [];
   sdk.Invoice.prototype.search = async ({ options }) => {
-    assert.equal(options.limit, 20, "limite aceito pela API de cobranças");
+    assert.equal(options.limit, undefined, "não enviar limite rejeitado pela API");
     assert.equal(options.preapproval_id, "123");
     offsets.push(options.offset);
-    return { paging: { total: 21 }, results: Array.from({ length: options.offset === 0 ? 20 : 1 }, (_, i) => ({ id: options.offset + i, preapproval_id: "123" })) };
+    return { paging: { total: 21, limit: 20 }, results: Array.from({ length: options.offset === 0 ? 20 : 1 }, (_, i) => ({ id: options.offset + i, preapproval_id: "123" })) };
   };
   const invoices = await createSubscriptionProvider("FAKE", sdk).searchInvoices({ preapprovalId: "123" });
   assert.deepEqual(offsets, [0, 20]);

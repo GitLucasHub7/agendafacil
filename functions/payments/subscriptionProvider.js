@@ -54,17 +54,24 @@ function createSubscriptionProvider(accessToken, sdk = require("mercadopago")) {
   // Uma página vazia/parcial não pode ocultar uma assinatura e liberar cobrança duplicada.
   async function searchAll(client, options, stopWhen, limit = 50) {
     const result = [];
-    for (let offset = 0; offset < 1000; offset += limit) {
-      const response = await client.search({ options: { ...options, limit, offset } });
+    for (let offset = 0; offset < 1000;) {
+      const query = { ...options, offset };
+      if (limit !== null) query.limit = limit;
+      const response = await client.search({ options: query });
       if (!response || !Array.isArray(response.results)) throw new Error("Resposta de busca incompleta do Mercado Pago.");
       const page = response.results;
       result.push(...page);
       if (stopWhen && page.some(stopWhen)) return result;
       const total = response.paging && Number(response.paging.total);
+      const pageSize = limit || Number(response.paging && response.paging.limit);
       if (Number.isFinite(total)) {
         if (offset + page.length >= total) return result;
-        if (page.length < limit) throw new Error("Paginação incompleta do Mercado Pago.");
-      } else if (page.length < limit) return result;
+        if (!page.length || (Number.isFinite(pageSize) && pageSize > 0 && page.length < pageSize)) throw new Error("Paginação incompleta do Mercado Pago.");
+      } else {
+        if (!Number.isFinite(pageSize) || pageSize <= 0) throw new Error("Paginação incompleta do Mercado Pago.");
+        if (page.length < pageSize) return result;
+      }
+      offset += page.length;
     }
     throw new Error("Busca excedeu o limite seguro; reconciliação manual necessária.");
   }
@@ -125,8 +132,8 @@ function createSubscriptionProvider(accessToken, sdk = require("mercadopago")) {
       const options = {};
       if (preapprovalId) options.preapproval_id = String(preapprovalId);
       if (paymentId) options.payment_id = Number(paymentId);
-      // Authorized payments uses pages of 20; 50 is rejected by the live API.
-      return (await searchAll(invoices, options, undefined, 20)).map(normalizeInvoice);
+      // Use the API's default page size: explicit limits are rejected for some invoice filters.
+      return (await searchAll(invoices, options, undefined, null)).map(normalizeInvoice);
     },
 
     async getPayment(id) {
