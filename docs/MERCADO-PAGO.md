@@ -10,7 +10,7 @@
 - Os 211 testes unitários passaram, incluindo regressão da paginação. Após publicar a correção, a sincronização autenticada reconheceu a assinatura como ativa e publicou o site de teste. O cancelamento foi confirmado no gateway e no Firebase. Checkout aprovado sozinho não libera acesso.
 - As sete verificações negativas do backend passaram após o deploy: chamadas sem autenticação e webhook sem assinatura retornam 401. Após a correção final, as dez notificações deste teste ficaram processadas. Cinco eventos de pagamento que haviam esgotado/falhado as tentativas foram reenfileirados de forma restrita e recuperados pelo job autenticado. Recusa e estorno ainda exigem homologação externa.
 - A assinatura de teste está cancelada; a conta e o site de teste foram preservados porque o período de acesso concedido ainda está vigente. A proteção de exclusão não foi contornada.
-- A interface pública continua em Spark, com cobranças desabilitadas. Homologação completa e lançamento comercial ainda não concluídos.
+- A interface publicada foi ativada em Blaze para homologação, com avisos de pagamentos de teste no painel e no checkout. Os 18 arquivos servidos foram conferidos. O vendedor permanece sendo uma conta de teste; lançamento comercial ainda não concluído.
 
 IDs de contas/transações, credenciais e capturas do painel não são publicados neste repositório.
 

@@ -1,6 +1,6 @@
 # Passo a passo para colocar no ar
 
-**Situação em 19/11/2026:** Blaze ativo, alertas configurados e nove Functions publicadas no ambiente de desenvolvimento. A demonstração está disponível em [agendafacil-online.web.app](https://agendafacil-online.web.app). O checkout com cartão fictício foi aprovado, mas a confirmação automática revelou um erro de paginação; a correção passou nos 211 testes unitários, foi implantada e validada pela sincronização autenticada: assinatura ativa e site publicado. O cancelamento também foi confirmado. A interface continua em Spark até concluir a homologação. Nenhuma credencial ou configuração privada é distribuída neste repositório.
+**Situação em 19/11/2026:** Blaze ativo, alertas configurados e nove Functions publicadas no ambiente de desenvolvimento. A demonstração está disponível em [agendafacil-online.web.app](https://agendafacil-online.web.app). O checkout com cartão fictício foi aprovado, mas a confirmação automática revelou um erro de paginação; a correção passou nos 211 testes unitários, foi implantada e validada pela sincronização autenticada: assinatura ativa e site publicado. O cancelamento também foi confirmado. A interface publicada está em Blaze para homologação, com pagamentos exclusivamente de teste e avisos visíveis. O repositório público mantém a configuração demo em Spark; a configuração real pertence à cópia isolada de implantação. Nenhuma credencial ou configuração privada é distribuída neste repositório.
 
 ## Caminho rápido: demonstração sem pagamentos
 
