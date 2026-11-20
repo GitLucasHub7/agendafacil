@@ -8,7 +8,8 @@
 - Checkout executado com comprador distinto e cartão fictício: aprovação de R$ 21,90 exibida pelo Mercado Pago.
 - A aprovação revelou uma falha de consulta: a busca de faturas enviava limite de 50 registros, rejeitado pela API. A tentativa inicial com limite de 20 ainda falhou na consulta por pagamento. O provider passou a omitir o limite explícito e respeitar a paginação retornada pela API, com falha segura quando a resposta está incompleta.
 - Os 211 testes unitários passaram, incluindo regressão da paginação. Após publicar a correção, a sincronização autenticada reconheceu a assinatura como ativa e publicou o site de teste. O cancelamento foi confirmado no gateway e no Firebase. Checkout aprovado sozinho não libera acesso.
-- As sete verificações negativas do backend passaram após o deploy: chamadas sem autenticação e webhook sem assinatura retornam 401. Reentrega após falha, recusa e estorno ainda exigem homologação externa.
+- As sete verificações negativas do backend passaram após o deploy: chamadas sem autenticação e webhook sem assinatura retornam 401. Após a correção final, as dez notificações deste teste ficaram processadas. Cinco eventos de pagamento que haviam esgotado/falhado as tentativas foram reenfileirados de forma restrita e recuperados pelo job autenticado. Recusa e estorno ainda exigem homologação externa.
+- A assinatura de teste está cancelada; a conta e o site de teste foram preservados porque o período de acesso concedido ainda está vigente. A proteção de exclusão não foi contornada.
 - A interface pública continua em Spark, com cobranças desabilitadas. Homologação completa e lançamento comercial ainda não concluídos.
 
 IDs de contas/transações, credenciais e capturas do painel não são publicados neste repositório.
