@@ -126,7 +126,7 @@ test("SPARK: publicar/assinar explica a limitação do Blaze, sem chamar funçã
   assert.equal(page.doc.querySelector("#mode-notice").hidden, false);
   assert.match(page.doc.querySelector("#mode-notice").textContent, /Blaze/);
   assert.match(page.doc.querySelector("#mode-notice").textContent, /Nada será cobrado/);
-  assert.match(page.doc.querySelector("#env-info").textContent, /Projeto: agendafacil-dev-test · modo Spark/);
+  assert.equal(page.doc.querySelector("#env-info"), null);
   assert.match(page.doc.querySelector("#publish-button").textContent, /requer plano Blaze/);
   page.doc.querySelector("#publish-button").click();
   await page.tick(60);
@@ -179,7 +179,7 @@ test("painel Spark: só ações que funcionam; rascunho mostra endereço derivad
   assert.ok(btn(c, "Continuar editando"));
   assert.ok(btn(c, "Excluir rascunho"));
   assert.equal([...c.querySelectorAll("button,a")].some((b) => /Assinar|Cancelar|atualizar|Concluir/.test(b.textContent)), false);
-  assert.match(page.doc.querySelector("#env-info").textContent, /modo Spark/);
+  assert.equal(page.doc.querySelector("#env-info"), null);
 
   page.confirms.answer = false;
   btn(c, "Excluir rascunho").click();
@@ -231,5 +231,5 @@ test("painel Blaze continua usando as Cloud Functions (comportamento anterior pr
   btn(c, "Já paguei — atualizar").click();
   await page.tick();
   assert.equal(page.calls.callable.filter((x) => x[0] === "syncSubscription").length, 1);
-  assert.match(page.doc.querySelector("#env-info").textContent, /modo Blaze/);
+  assert.equal(page.doc.querySelector("#env-info"), null);
 });

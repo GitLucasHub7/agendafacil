@@ -1,25 +1,32 @@
 <!doctype html>
 <html lang="pt-BR">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Agenda do negócio — AgendaFácil</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="auth.css"><link rel="stylesheet" href="booking.css"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Agenda do negócio — AgendaFácil</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="auth.css"><link rel="stylesheet" href="agenda.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet"></head>
 <body class="auth-body">
-  <header class="panel-header"><a href="painel.html" class="app-brand">AgendaFácil · Meus sites</a></header>
-  <main class="booking-box">
-    <h1 id="agenda-title">Agenda do negócio</h1>
-    <p class="muted">Uma agenda por negócio, com um atendimento por vez. Horários de Brasília. As reservas só abrem no site publicado. Para equipes, esta primeira versão usa uma agenda compartilhada.</p>
-    <p id="agenda-message" role="status">Carregando…</p>
-    <section aria-labelledby="appointments-title"><h2 id="appointments-title">Reservas</h2><label for="agenda-date">Data</label><input id="agenda-date" type="date"><div class="actions"><button id="refresh-bookings" type="button">Atualizar reservas</button></div><div id="appointments"></div></section>
-    <hr>
-    <details><summary>Configurar serviços e disponibilidade</summary>
-      <p class="muted" id="business-hours"></p>
+  <header class="panel-header agenda-header"><a href="painel.html" class="app-brand" aria-label="AgendaFácil, meus sites"><span class="brand-symbol">a</span><span>agenda<span>fácil</span></span></a><a class="back-link" href="painel.html">← Meus sites</a></header>
+  <main class="agenda-shell">
+    <div class="agenda-hero"><div><p class="eyebrow">SEU NEGÓCIO, NO SEU RITMO</p><h1 id="agenda-title">Agenda e serviços</h1><p class="agenda-subtitle" id="business-name">Organize os horários. Cuide de quem chega.</p></div><span class="agenda-state" id="agenda-state">Carregando agenda</span></div>
+    <nav class="agenda-nav" aria-label="Nesta página"><a href="#reservas">Reservas</a><a href="#configuracoes">Serviços e disponibilidade</a></nav>
+    <p id="agenda-message" class="agenda-notice" role="status" aria-live="polite">Carregando…</p>
+    <div class="agenda-layout">
+      <section class="agenda-card reservations-card" id="reservas" aria-labelledby="appointments-title">
+        <div class="card-heading"><div><p class="eyebrow">SUA ROTINA</p><h2 id="appointments-title">Reservas do dia</h2></div><span class="count-pill" id="booking-count">—</span></div>
+        <div class="date-toolbar"><label for="agenda-date">Escolha a data<input id="agenda-date" type="date"></label><button id="refresh-bookings" class="subtle-button" type="button">↻ Atualizar</button></div>
+        <div id="appointments"></div>
+        <p class="card-footnote">Horários de Brasília · Um atendimento por vez</p>
+      </section>
+      <aside class="agenda-aside"><div class="agenda-tip"><span class="tip-icon" aria-hidden="true">✦</span><h2>Uma agenda bem cuidada<br>faz o dia render.</h2><p>Cadastre seus serviços, escolha os dias e abra a agenda para seus clientes.</p><a href="#configuracoes">Organizar minha agenda ↓</a></div><p>Precisa de uma mão?<br><a href="/suporte.html">Fale com o suporte</a></p></aside>
+    </div>
+    <section class="agenda-card settings-card" id="configuracoes" aria-labelledby="settings-title">
+      <div class="card-heading"><div><p class="eyebrow">DO SEU JEITO</p><h2 id="settings-title">Serviços e disponibilidade</h2><p class="section-description">Tudo o que seus clientes precisam para escolher o melhor horário.</p></div></div>
       <form id="settings-form">
-        <label class="booking-consent"><input id="booking-enabled" type="checkbox"><span>Abrir agenda para receber reservas</span></label>
-        <fieldset><legend>Dias de atendimento</legend><div id="weekday-options" class="weekday-options"></div></fieldset>
-        <h2>Serviços</h2><p class="muted">Informe o preço real do serviço. A reserva não cobra esse valor online; o pagamento é combinado com o cliente.</p>
-        <div id="services-editor"></div><div class="actions"><button type="button" id="add-service" class="secondary">Adicionar serviço</button></div>
-        <label for="blocked-dates">Datas sem atendimento</label><textarea id="blocked-dates" rows="3" placeholder="2026-12-25, 2027-01-01"></textarea><p class="muted">Use AAAA-MM-DD, separadas por vírgula. Fechar um dia não cancela reservas já confirmadas; entre em contato com os clientes afetados.</p>
-        <div class="actions"><button type="submit" id="save-settings">Salvar configurações</button></div>
+        <label class="availability-toggle"><span><strong>Receber agendamentos online</strong><small>Disponível aos visitantes quando seu site estiver publicado.</small></span><input id="booking-enabled" type="checkbox" role="switch"></label>
+        <div class="settings-section"><div class="section-heading"><h3>01 <span>Seus serviços</span></h3><button type="button" id="add-service" class="subtle-button">+ Adicionar serviço</button></div><p class="section-description">Defina a duração e o preço. O pagamento do serviço é combinado diretamente com o cliente.</p><div id="services-editor"></div></div>
+        <div class="availability-grid"><fieldset class="settings-section"><legend>02 · Dias de atendimento</legend><p class="section-description">Marque os dias em que seu negócio abre.</p><div id="weekday-options" class="weekday-options"></div><p class="hours-note" id="business-hours"></p></fieldset>
+        <div class="settings-section"><label class="section-label" for="blocked-dates">03 · Pausas e feriados</label><p class="section-description">Separe as datas por vírgula, no formato ano-mês-dia.</p><textarea id="blocked-dates" rows="3" placeholder="Ex.: 2026-12-25, 2027-01-01"></textarea><p class="field-hint">Bloquear uma data não cancela reservas existentes. Avise os clientes se houver mudanças.</p></div></div>
+        <div class="save-bar"><p>Uma agenda compartilhada por negócio, inclusive para equipes.</p><button type="submit" id="save-settings" class="primary-button">Salvar alterações <span aria-hidden="true">→</span></button></div>
       </form>
-    </details>
+    </section>
+    <footer class="agenda-footer"><span>AgendaFácil · Mais tempo para o seu negócio.</span><a href="/suporte.html">Ajuda e suporte</a></footer>
   </main>
   <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-check-compat.js"></script>

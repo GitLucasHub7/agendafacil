@@ -416,10 +416,8 @@ async function init() {
   applyModeNotice();
 }
 
-// Deixa claro, na própria tela, em que ambiente/plano o app está rodando (evita gravar no projeto errado sem perceber).
+// Explica apenas as limitações da prévia local, quando aplicável.
 function applyModeNotice() {
-  const env = $("#env-info");
-  if (env) env.textContent = `Projeto: ${AF.projectId || "?"} · modo ${AF.mode === "spark" ? "Spark" : "Blaze"}`;
   if (AF.mode !== "spark") return;
   const notice = $("#mode-notice");
   if (notice) {

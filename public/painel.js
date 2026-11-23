@@ -169,7 +169,6 @@
 
   const user = await AF.requireUser(); // sem sessão, redireciona para o login
   $("#user-email").textContent = user.email || "";
-  $("#env-info").textContent = `Projeto: ${AF.projectId || "?"} · modo ${spark ? "Spark" : "Blaze"}`;
   $("#logout-button").addEventListener("click", () => AF.signOut());
 
   function updateVerifyBanner() {

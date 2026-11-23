@@ -7,6 +7,7 @@
   let loadedSettings = false;
   let sequence = 0;
   const money = cents => (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  function updateState(enabled) { const badge = $('#agenda-state'); badge.dataset.open = String(enabled); badge.textContent = enabled ? 'Agenda aberta' : 'Agenda pausada'; }
   function node(tag, text) { const el = document.createElement(tag); if (text !== undefined) el.textContent = text; return el; }
   function showError(err) { message.textContent = err.code === 'functions/internal' ? 'Não foi possível concluir. Tente novamente.' : err.message || 'Não foi possível concluir.'; }
   async function call(action, data = {}) { return (await AF.functions.httpsCallable('manageBookings')({ siteId, action, ...data })).data; }
@@ -28,7 +29,8 @@
     try {
       const data = await call('list', { date: date.value });
       if (current !== sequence) return;
-      $('#agenda-title').textContent = 'Agenda · ' + data.siteName;
+      $('#business-name').textContent = data.siteName;
+      updateState(data.settings.enabled);
       $('#business-hours').textContent = `Horário de atendimento: ${data.start}–${data.end}. Para mudar, edite o site. Há antecedência mínima de uma hora e reservas até 60 dias à frente.`;
       if (!loadedSettings) {
         $('#booking-enabled').checked = data.settings.enabled;
@@ -37,7 +39,13 @@
         services.replaceChildren(); data.settings.services.forEach(serviceRow); loadedSettings = true;
       }
       const list = $('#appointments'); list.replaceChildren();
-      if (!data.bookings.length) list.append(node('p', 'Nenhuma reserva nesta data.'));
+      $('#booking-count').textContent = String(data.bookings.filter(b => b.status === 'confirmed').length);
+      if (!data.bookings.length) {
+        const empty = node('div'); empty.className = 'empty-reservations';
+        const icon = node('span', '▦'); icon.className = 'empty-icon'; icon.setAttribute('aria-hidden', 'true');
+        empty.append(icon, node('h3', 'Seu dia está livre por aqui'), node('p', 'Nenhuma reserva nesta data. Quando um cliente agendar, os detalhes aparecem aqui.'));
+        list.append(empty);
+      }
       for (const booking of data.bookings) {
         const card = node('article'); card.className = 'appointment';
         card.append(node('h3', `${booking.time} · ${booking.service}`), node('p', `${booking.name} · ${booking.phone}`), node('p', `${booking.duration} min · ${money(booking.priceCents)} · ${booking.status === 'confirmed' ? 'Confirmada' : 'Cancelada'}`));
@@ -66,6 +74,7 @@
     try {
       const items = [...services.children].map(row => ({ name: row.querySelector('[data-field=name]').value, duration: Number(row.querySelector('[data-field=duration]').value), priceCents: Math.round(Number(row.querySelector('[data-field=price]').value) * 100) }));
       await call('saveSettings', { settings: { enabled: $('#booking-enabled').checked, days: [...$('#weekday-options').querySelectorAll('input:checked')].map(input => Number(input.value)), blockedDates: $('#blocked-dates').value.split(/[\s,;]+/).filter(Boolean), services: items } });
+      updateState($('#booking-enabled').checked);
       message.textContent = 'Configurações salvas. A agenda ficará disponível no site publicado.';
     } catch (err) { showError(err); } finally { button.disabled = false; }
   });
