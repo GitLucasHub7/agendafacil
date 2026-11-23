@@ -79,7 +79,9 @@ test("Assinaturas: preço fica só no servidor e nenhum segredo/preço vem do na
   assert.doesNotMatch(server, /request\.data(\.|\s*\|\|\s*\{\}\)\.)(price|amount|priceCents|transaction_amount)/);
   const frontend = fs.readdirSync(path.join(root, "public")).filter((f) => /\.(js|html)$/.test(f)).map((f) => read("public/" + f)).join("\n");
   // O front só EXIBE o preço em texto; nunca o envia nem manipula dados de cartão/assinatura do gateway.
-  assert.doesNotMatch(frontend, /transaction_amount|card_token|auto_recurring|MERCADOPAGO|priceCents/);
+  assert.doesNotMatch(frontend, /transaction_amount|card_token|auto_recurring|MERCADOPAGO/);
+  // Preços de serviços do negócio são editáveis; o preço da assinatura continua exclusivo do servidor.
+  for (const file of ['app.js', 'painel.js']) assert.doesNotMatch(read('public/' + file), /priceCents/);
 });
 
 test("Webhook e agendador exportados; createCharge (Pix avulso) removida das Functions", () => {

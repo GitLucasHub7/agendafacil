@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/booking.css" />
     <style>
       /* Ajustes só pra essa página: o site real ocupa a tela inteira,
          não o mockup pequeno de telefone usado dentro do construtor. */
@@ -20,6 +21,7 @@
       #site-not-found { color: #79746b; }
       #site-not-found h1 { margin: 0 0 10px; color: #25221d; font-family: "Playfair Display", Georgia, serif; }
       #site-preview.site-preview { max-width: 480px; margin: 0 auto; min-height: 100vh; }
+      [hidden] { display: none !important; }
     </style>
   </head>
   <body>
@@ -40,10 +42,30 @@
       <div class="preview-footer"><span id="preview-footer-logo"></span><b id="preview-footer-name"></b><small>Feito com AgendaFácil</small></div>
     </article>
 
+    <section id="booking-box" class="booking-box" hidden aria-labelledby="booking-heading">
+      <h2 id="booking-heading">Reserve seu horário</h2>
+      <p class="muted">Horários de Brasília. A reserva é confirmada nesta página; o pagamento do serviço é combinado diretamente com o estabelecimento.</p>
+      <form id="booking-form" hidden>
+        <fieldset id="booking-fields">
+          <label for="booking-service">Serviço</label><select id="booking-service" required></select>
+          <label for="booking-date">Data</label><input type="date" id="booking-date" required>
+          <label for="booking-time">Horário</label><select id="booking-time" required></select>
+          <label for="booking-name">Seu nome</label><input id="booking-name" autocomplete="name" minlength="2" maxlength="80" required>
+          <label for="booking-phone">Telefone com DDD</label><input id="booking-phone" type="tel" autocomplete="tel" maxlength="20" required>
+          <label class="booking-consent"><input type="checkbox" id="booking-consent" required><span>Autorizo o envio do meu nome e telefone a este estabelecimento para organizar e entrar em contato sobre esta reserva.</span></label>
+          <button id="booking-submit" type="submit" disabled>Confirmar reserva</button>
+        </fieldset>
+      </form>
+      <p id="booking-message" role="status" tabindex="-1">Carregando agenda…</p>
+    </section>
+
     <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-functions-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-check-compat.js"></script>
     <script src="/render-shared.js"></script>
     <script src="/firebase-config.js"></script>
+    <script src="/booking.js"></script>
     <script src="/site.js"></script>
   </body>
 </html>

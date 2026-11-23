@@ -48,6 +48,12 @@ function makeDeleteAccount({ db, FieldValue, getProvider, deleteAuthUser, now = 
 
     const anon = `deleted_${crypto.createHash("sha256").update(uid).digest("hex").slice(0, 16)}`;
 
+    // Reservas contêm dados de contato dos visitantes; não ficam órfãs após excluir o negócio.
+    for (const collection of ['bookings', 'bookingDays', 'bookingSettings']) {
+      const records = await db.collection(collection).where('ownerUid', '==', uid).get();
+      for (const record of records.docs) await db.collection(collection).doc(record.id).delete();
+    }
+
     const sites = (await db.collection("sites").where("ownerUid", "==", uid).get()).docs;
     let deletedSites = 0;
     for (const doc of sites) {

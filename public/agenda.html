@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Agenda do negócio — AgendaFácil</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="auth.css"><link rel="stylesheet" href="booking.css"></head>
+<body class="auth-body">
+  <header class="panel-header"><a href="painel.html" class="app-brand">AgendaFácil · Meus sites</a></header>
+  <main class="booking-box">
+    <h1 id="agenda-title">Agenda do negócio</h1>
+    <p class="muted">Uma agenda por negócio, com um atendimento por vez. Horários de Brasília. As reservas só abrem no site publicado. Para equipes, esta primeira versão usa uma agenda compartilhada.</p>
+    <p id="agenda-message" role="status">Carregando…</p>
+    <section aria-labelledby="appointments-title"><h2 id="appointments-title">Reservas</h2><label for="agenda-date">Data</label><input id="agenda-date" type="date"><div class="actions"><button id="refresh-bookings" type="button">Atualizar reservas</button></div><div id="appointments"></div></section>
+    <hr>
+    <details><summary>Configurar serviços e disponibilidade</summary>
+      <p class="muted" id="business-hours"></p>
+      <form id="settings-form">
+        <label class="booking-consent"><input id="booking-enabled" type="checkbox"><span>Abrir agenda para receber reservas</span></label>
+        <fieldset><legend>Dias de atendimento</legend><div id="weekday-options" class="weekday-options"></div></fieldset>
+        <h2>Serviços</h2><p class="muted">Informe o preço real do serviço. A reserva não cobra esse valor online; o pagamento é combinado com o cliente.</p>
+        <div id="services-editor"></div><div class="actions"><button type="button" id="add-service" class="secondary">Adicionar serviço</button></div>
+        <label for="blocked-dates">Datas sem atendimento</label><textarea id="blocked-dates" rows="3" placeholder="2026-12-25, 2027-01-01"></textarea><p class="muted">Use AAAA-MM-DD, separadas por vírgula. Fechar um dia não cancela reservas já confirmadas; entre em contato com os clientes afetados.</p>
+        <div class="actions"><button type="submit" id="save-settings">Salvar configurações</button></div>
+      </form>
+    </details>
+  </main>
+  <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-check-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-functions-compat.js"></script>
+  <script src="firebase-config.js"></script><script src="app-mode.js"></script><script src="auth-shared.js"></script><script src="agenda.js"></script>
+</body>
+</html>

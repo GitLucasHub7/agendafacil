@@ -11,6 +11,11 @@ try {
   if (!firebaseConfig || /COLOQUE_AQUI/i.test(firebaseConfig.apiKey || "")) throw new Error("FIREBASE_CONFIG ausente ou com placeholder");
   firebase.initializeApp(firebaseConfig);
   db = firebase.firestore();
+  if (!emulate && window.APPCHECK_SITE_KEY && firebase.appCheck) {
+    const provider = window.APPCHECK_PROVIDER === 'enterprise'
+      ? new firebase.appCheck.ReCaptchaEnterpriseProvider(window.APPCHECK_SITE_KEY) : window.APPCHECK_SITE_KEY;
+    firebase.appCheck().activate(provider, true);
+  }
   if (emulate) db.useEmulator("127.0.0.1", 8080);
 } catch (err) {
   db = null;
@@ -59,11 +64,7 @@ async function init() {
     window.AgendaFacilRender.renderSiteInto(site, config);
     document.title = `${config.name || "Site"} — Feito com AgendaFácil`;
 
-    // O agendamento em si (cliente escolhendo um horário de verdade) ainda
-    // não existe — é a próxima etapa depois de endereço real + pagamento real.
-    const comingSoon = () => alert("Agendamento chegando em breve! Por enquanto, fale direto com o negócio.");
-    document.getElementById("hero-cta").addEventListener("click", comingSoon);
-    document.getElementById("preview-booking-button").addEventListener("click", comingSoon);
+    if (window.initBooking) window.initBooking(config);
 
     document.getElementById("site-loading").hidden = true;
     site.hidden = false;

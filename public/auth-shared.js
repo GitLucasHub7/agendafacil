@@ -37,7 +37,7 @@
 
   // "next" só pode apontar para páginas internas conhecidas (evita open redirect).
   function safeNext(value, fallback) {
-    return typeof value === "string" && /^(painel|editor)\.html(\?[A-Za-z0-9=&_-]*)?$/.test(value) ? value : fallback;
+    return typeof value === "string" && /^(painel|editor|agenda)\.html(\?[A-Za-z0-9=&_-]*)?$/.test(value) ? value : fallback;
   }
 
   // AF.go centraliza a navegação (e permite testar redirecionamentos).
@@ -84,7 +84,9 @@
       const appCheckKey = global.APPCHECK_SITE_KEY;
       if (!emulate && appCheckKey && typeof fb.appCheck === "function") {
         if (local) global.self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
-        fb.appCheck().activate(appCheckKey, true);
+        const provider = global.APPCHECK_PROVIDER === "enterprise"
+          ? new fb.appCheck.ReCaptchaEnterpriseProvider(appCheckKey) : appCheckKey;
+        fb.appCheck().activate(provider, true);
         AF.appCheck = true;
       } else if (!emulate && appCheckKey) {
         console.warn("APPCHECK_SITE_KEY definida, mas o SDK do App Check não foi carregado nesta página.");

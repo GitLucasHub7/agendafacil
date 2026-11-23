@@ -1,12 +1,12 @@
 # AgendaFácil
 
-Construtor de páginas para pequenos negócios, com editor visual, rascunhos privados e uma integração de assinaturas em desenvolvimento.
+Construtor de páginas para pequenos negócios, com editor visual, agenda de reservas e integração de assinaturas.
 
 ![Validação](https://github.com/GitLucasHub7/agendafacil/actions/workflows/validate.yml/badge.svg)
 
-**Estado:** desenvolvimento e homologação. A versão local tem **230 testes aprovados**. O fluxo externo de pagamento ainda precisa de validação no Mercado Pago. A agenda apresentada nas páginas é uma prévia: reservas reais de horários ainda não foram implementadas.
+**Estado em 23/11/2026:** agenda implementada e testada no ambiente publicado com dados fictícios. Pagamentos de teste foram validados; a primeira cobrança real completa ainda está pendente. O repositório usa configuração demo e não ativa recebimentos reais por conta própria.
 
-**Entrega de 09/11/2026:** demonstração em modo Spark publicada e verificada no Firebase, com cadastro, login e rascunhos privados. Os 18 recursos publicados foram conferidos contra a versão validada. Pagamentos permanecem desativados; o repositório continua usando apenas configuração demo.
+**Entrega atual:** reservas com proteção contra sobreposição, gestão pelo proprietário, cancelamento e App Check com suporte a reCAPTCHA Enterprise. Uma agenda compartilhada por estabelecimento; notificações automáticas e calendários separados por profissional ainda não estão disponíveis.
 
 ## O que já funciona
 
@@ -15,8 +15,10 @@ Construtor de páginas para pequenos negócios, com editor visual, rascunhos pri
 - Rascunhos privados no Firestore, com validação e controle de acesso nas regras.
 - Prévia local isolada usando um projeto fictício e os emuladores do Firebase.
 - Backend de assinaturas com webhook assinado, controle de duplicidade, recuperação de falhas e tratamento de cancelamento e estorno.
+- Serviços, preços informativos, duração, dias de atendimento, datas bloqueadas e reservas online.
+- Separação das credenciais de teste e produção, inclusive para assinaturas antigas e notificações.
 
-Os testes financeiros usam um gateway simulado. A existência do backend não significa que pagamentos estejam habilitados no site.
+Os testes automatizados financeiros usam um gateway simulado. A validação externa com conta de teste é separada; nenhum teste automatizado deve cobrar um cartão real.
 
 ## Executar no computador
 
@@ -42,7 +44,7 @@ npm audit
 npm --prefix functions audit
 ```
 
-São 210 testes unitários, 18 testes de regras/transações e dois cenários integrados com Authentication, Firestore e Hosting emulados. A verificação no GitHub executa os mesmos grupos sem segredos e sem deploy. Sua execução remota pode ser acompanhada em **Actions**.
+As suítes cobrem lógica unitária, regras/transações e cenários integrados com Authentication, Firestore e Hosting emulados. A verificação no GitHub executa esses grupos sem segredos e sem deploy. Sua execução remota pode ser acompanhada em **Actions**.
 
 ## Organização
 

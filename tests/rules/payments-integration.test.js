@@ -23,6 +23,24 @@ before(async () => {
 });
 after(async () => { if (db) await db.terminate(); if (app) await deleteApp(app); });
 
+test('Firestore real: reservas simultâneas não sobrepõem; cancelamento libera horário; outro dono é bloqueado', async () => {
+  const { makeBookings } = require('../../functions/lib/bookings');
+  const siteId = 'bookingemulator123';
+  const site = { siteId, ownerUid: 'booking-owner', name: 'Teste Agenda', published: true, start: '09:00', end: '18:00' };
+  await db.collection('sites').doc(siteId).set(site);
+  await db.collection('publicSites').doc('booking-emulator').set(site);
+  const b = makeBookings({ db, now: () => Date.parse('2026-11-19T08:00:00-03:00') });
+  await b.manage({ auth: { uid: site.ownerUid }, data: { action: 'saveSettings', siteId, settings: { enabled: true, days: [4], services: [{ name: 'Corte', duration: 60, priceCents: 5000 }] } } });
+  const make = (key, time) => ({ rawRequest: { ip: '192.0.2.20' }, data: { slug: 'booking-emulator', date: '2026-11-19', time, name: 'Pessoa Fictícia', phone: '11999999999', serviceId: 'service1', requestKey: key.repeat(32), consent: true } });
+  const results = await Promise.allSettled([b.create(make('a', '10:00')), b.create(make('b', '10:30'))]);
+  assert.equal(results.filter(r => r.status === 'fulfilled').length, 1);
+  assert.equal(results.find(r => r.status === 'rejected').reason.code, 'already-exists');
+  const id = results.find(r => r.status === 'fulfilled').value.bookingId;
+  await assert.rejects(b.manage({ auth: { uid: 'intruder' }, data: { action: 'list', siteId, date: '2026-11-19' } }), e => e.code === 'not-found');
+  await b.manage({ auth: { uid: site.ownerUid }, data: { action: 'cancel', siteId, bookingId: id } });
+  assert.equal((await b.create(make('c', '10:00'))).status, 'confirmed');
+});
+
 function setup() {
   const gw = createFakeGateway();
   let time = Date.UTC(2026, 5, 1);

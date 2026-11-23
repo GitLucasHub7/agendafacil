@@ -78,6 +78,7 @@
     const sub = site.subscriptionId ? subs.get(site.subscriptionId) : null;
     const info = describe(site, sub);
     const actions = el("div", { class: "site-actions" });
+    if (!spark) actions.append(el('a', { class: 'btn secondary', href: `agenda.html?site=${encodeURIComponent(id)}`, text: 'Agenda e serviços' }));
     const edit = () => el("a", { class: "btn secondary", href: `editor.html?site=${encodeURIComponent(id)}`, text: "Continuar editando" });
 
     let publicUrl = null;

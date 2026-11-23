@@ -11,7 +11,7 @@ setGlobalOptions({ minInstances: 0, maxInstances: 3, concurrency: 20, memory: "2
 initializeApp();
 const db = getFirestore();
 
-const { getSubscriptionProvider, getWebhookSecret, secrets } = require("./payments/subscriptions");
+const { getSubscriptionProvider, getPaymentEnvironment, verifyProductionAccount, getWebhookSecret, getLiveWebhookSecret, secrets, liveWebhookSecrets } = require("./payments/subscriptions");
 const { makeSaveSite } = require("./lib/sites");
 const { makeDeleteAccount } = require("./lib/account");
 const { makeEngine, makeCreateSubscription, makeCancelSubscription, makeSyncSubscription, makePublishChanges, makeReconcile, makeRetryWebhookEvents, makeWebhook } = require("./lib/subscriptions");
@@ -25,6 +25,16 @@ const appBaseUrl = defineString("APP_BASE_URL", { default: "" });
 //   ENFORCE_APP_CHECK=true  em functions/.env.<alias>
 const enforceAppCheck = defineBoolean("ENFORCE_APP_CHECK", { default: false });
 const guard = (handler) => withAppCheck(handler, () => enforceAppCheck.value());
+const { makeBookings } = require('./lib/bookings');
+const bookings = makeBookings({ db });
+exports.getBookingAvailability = onCall(guard(bookings.availability));
+exports.createBooking = onCall(guard(bookings.create));
+exports.manageBookings = onCall(guard(bookings.manage));
+exports.checkPaymentReadiness = onCall({ secrets }, guard(async request => {
+  require('./lib/sites').requireAuth(request);
+  await verifyProductionAccount();
+  return { liveMerchantVerified: true, paymentEnvironment: getPaymentEnvironment() };
+}));
 
 const deps = { db, FieldValue, getProvider: getSubscriptionProvider };
 const engine = makeEngine(deps);
@@ -33,7 +43,7 @@ const engine = makeEngine(deps);
 exports.saveSite = onCall(guard(makeSaveSite({ db, FieldValue, afterSave: (subId) => engine.applyState(subId, null) })));
 
 /** Inicia a assinatura mensal (R$ 21,90) de UM site do usuário; devolve o link do checkout do Mercado Pago. */
-exports.createSubscription = onCall({ secrets }, guard(makeCreateSubscription({ ...deps, getAppBaseUrl: () => appBaseUrl.value() })));
+exports.createSubscription = onCall({ secrets }, guard(makeCreateSubscription({ ...deps, getPaymentEnvironment, getAppBaseUrl: () => appBaseUrl.value() })));
 
 /** Cancela a assinatura do site: o acesso continua até o fim do período já pago. */
 exports.cancelSubscription = onCall({ secrets }, guard(makeCancelSubscription({ ...deps, engine })));
@@ -52,7 +62,8 @@ exports.deleteAccount = onCall({ secrets }, guard(makeDeleteAccount({ ...deps, d
  * sempre consulta o recurso ATUAL no gateway antes de alterar qualquer estado.
  */
 // timeoutSeconds > orçamento interno (18 s); maxInstances limita custo/abuso do endpoint público.
-exports.paymentWebhook = onRequest({ secrets, timeoutSeconds: 60, maxInstances: 3 }, makeWebhook({ ...deps, engine, getSecret: getWebhookSecret }));
+exports.paymentWebhook = onRequest({ secrets, timeoutSeconds: 60, maxInstances: 3 }, makeWebhook({ ...deps, getProvider: () => getSubscriptionProvider('test'), paymentEnvironment: 'test', engine, getSecret: getWebhookSecret }));
+exports.livePaymentWebhook = onRequest({ secrets: liveWebhookSecrets, timeoutSeconds: 60, maxInstances: 3 }, makeWebhook({ ...deps, getProvider: () => getSubscriptionProvider('live'), paymentEnvironment: 'live', engine, getSecret: getLiveWebhookSecret }));
 
 /** Reconciliação: regras de tempo (carência, fim do período) e recuperação de notificações perdidas. */
 exports.reconcileSubscriptions = onSchedule({ schedule: "every 6 hours", timeZone: "America/Sao_Paulo", secrets, timeoutSeconds: 300, maxInstances: 1, concurrency: 1 }, async () => {
@@ -62,6 +73,6 @@ exports.reconcileSubscriptions = onSchedule({ schedule: "every 6 hours", timeZon
 
 /** Reprocessa eventos de webhook gravados que falharam ou ficaram pela metade (mecanismo durável de retry). */
 exports.retryWebhookEvents = onSchedule({ schedule: "every 15 minutes", timeZone: "America/Sao_Paulo", secrets, timeoutSeconds: 300, maxInstances: 1, concurrency: 1 }, async () => {
-  const summary = await makeRetryWebhookEvents({ ...deps, engine })();
+  const summary = await makeRetryWebhookEvents({ ...deps, getProviderForEnvironment: getSubscriptionProvider, engine })();
   console.log("retryWebhookEvents:", JSON.stringify(summary));
 });

@@ -42,6 +42,16 @@ beforeEach(async () => {
 
 const as = (uid) => (uid ? env.authenticatedContext(uid).firestore() : env.unauthenticatedContext().firestore());
 
+test('agenda: dados pessoais, bloqueios e configurações só são acessados pelo servidor', async () => {
+  for (const col of ['bookings', 'bookingDays', 'bookingSettings', 'bookingLimits']) {
+    await env.withSecurityRulesDisabled(async ctx => { await ctx.firestore().doc(col + '/private').set({ ownerUid: 'alice', phone: '11999999999' }); });
+    for (const uid of [null, 'alice', 'bob']) {
+      await assertFails(as(uid).doc(col + '/private').get());
+      await assertFails(as(uid).doc(col + '/private').set({ ownerUid: uid }));
+    }
+  }
+});
+
 test("dono lê o próprio rascunho; outro usuário e anônimo não", async () => {
   await assertSucceeds(as("alice").doc("sites/a1").get());
   await assertFails(as("bob").doc("sites/a1").get());

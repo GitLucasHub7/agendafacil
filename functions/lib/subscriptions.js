@@ -206,7 +206,7 @@ async function failCreation({ db, FieldValue }, sub, extra = {}) {
   }
 }
 
-function makeCreateSubscription({ db, FieldValue, getProvider, getAppBaseUrl, now = () => Date.now() }) {
+function makeCreateSubscription({ db, FieldValue, getProvider, getAppBaseUrl, getPaymentEnvironment = () => 'test', now = () => Date.now() }) {
   const ctx = { db, FieldValue, getProvider, now };
 
   // Transação ÚNICA: trava de criação por site + reserva do endereço + registro da assinatura.
@@ -235,6 +235,7 @@ function makeCreateSubscription({ db, FieldValue, getProvider, getAppBaseUrl, no
       if (existing) {
         if (existing.creationState === "needs_cancel") return { type: "processing", subscriptionId: existing.id };
         if (existing.status === STATUS.ACTIVE || existing.status === STATUS.PAST_DUE) return { type: "already" };
+        if ((existing.paymentEnvironment || 'test') !== getPaymentEnvironment() && existing.mpPreapprovalId && existing.mpStatus !== 'cancelled') return { type: "retire", sub: existing };
         const alive = existing.status === STATUS.PENDING && existing.requestedCancel !== true && existing.mpStatus !== "cancelled";
         if (alive && existing.creationState === "creating") {
           if (ts - (existing.creationStartedAtMs || 0) < CREATION_LOCK_MS) return { type: "processing", subscriptionId: existing.id };
@@ -262,6 +263,7 @@ function makeCreateSubscription({ db, FieldValue, getProvider, getAppBaseUrl, no
       tx.set(db.collection("slugClaims").doc(slug), reservedClaim({ slug, siteId, ownerUid: uid, subscriptionId: subRef.id, now: ts, prev: claimSnap.exists && claimSnap.data().siteId === siteId ? claimSnap.data() : null }));
       if (oldClaimSnap && oldClaimSnap.exists && oldClaimSnap.data().siteId === siteId && oldClaimSnap.data().state !== "published") tx.delete(db.collection("slugClaims").doc(site.slugClaim));
       tx.set(subRef, {
+        paymentEnvironment: getPaymentEnvironment(),
         ownerUid: uid,
         siteId,
         slug,
@@ -301,6 +303,7 @@ function makeCreateSubscription({ db, FieldValue, getProvider, getAppBaseUrl, no
     }
     if (remote) {
       await db.collection("subscriptions").doc(sub.id).update({ mpPreapprovalId: remote.id, initPoint: remote.initPoint, mpStatus: String(remote.status || "pending").toLowerCase(), creationState: "ready", updatedAt: FieldValue.serverTimestamp() });
+      if ((sub.paymentEnvironment || 'test') !== getPaymentEnvironment()) return { type: "retry" };
       return { type: "reuse", subscriptionId: sub.id, initPoint: remote.initPoint };
     }
     if (remote === null) {
@@ -524,7 +527,7 @@ function makeReconcile({ db, FieldValue, getProvider, engine, now = () => Date.n
 }
 
 // Processamento de UM evento (compartilhado entre o webhook e o reprocessador agendado).
-function makeProcessTopic({ db, FieldValue, getProvider, engine, now }) {
+function makeProcessTopic({ db, FieldValue, getProvider, engine, now, paymentEnvironment }) {
   async function processTopic(topic, dataId) {
     const provider = getProvider();
 
@@ -532,6 +535,7 @@ function makeProcessTopic({ db, FieldValue, getProvider, engine, now }) {
       const pre = preapprovalHint || (await provider.getPreapproval(preapprovalId));
       const sub = await engine.findSubscription({ externalReference: pre.externalReference, preapprovalId: pre.id });
       if (!sub) return { result: "unknown_subscription" };
+        if (paymentEnvironment && (sub.paymentEnvironment || 'test') !== paymentEnvironment) throw new Error('Ambiente do webhook diverge da assinatura.');
       if (sub.creationState === "needs_cancel") return compensateOrphan({ db, FieldValue, getProvider, now }, { sub, pre, reason: "retry_orphan_cancel" });
       if (!sub.mpPreapprovalId && pre.externalReference === sub.id) {
         if (sub.creationState === "failed" && String(pre.status).toLowerCase() !== "cancelled") {
@@ -592,8 +596,8 @@ function withBudget(promise, ms) {
   return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
 }
 
-function makeWebhook({ db, FieldValue, getProvider, getSecret, engine, now = () => Date.now(), budgetMs = WEBHOOK_BUDGET_MS }) {
-  const processTopic = makeProcessTopic({ db, FieldValue, getProvider, engine, now });
+function makeWebhook({ db, FieldValue, getProvider, getSecret, engine, paymentEnvironment = 'test', now = () => Date.now(), budgetMs = WEBHOOK_BUDGET_MS }) {
+  const processTopic = makeProcessTopic({ db, FieldValue, getProvider, engine, now, paymentEnvironment });
 
   return async (req, res) => {
     if (req.method !== "POST") {
@@ -627,11 +631,11 @@ function makeWebhook({ db, FieldValue, getProvider, getSecret, engine, now = () 
     const dataId = String(dataIdQuery);
 
     // 2) Registro do evento (diagnóstico + deduplicação). Reprocessar é seguro, pois o estado vem do gateway.
-    const eventId = crypto.createHash("sha256").update(`${topic}|${dataId}|${headers["x-request-id"] || ""}`).digest("hex").slice(0, 40);
+    const eventId = crypto.createHash("sha256").update(`${paymentEnvironment === 'live' ? 'live|' : ''}${topic}|${dataId}|${headers["x-request-id"] || ""}`).digest("hex").slice(0, 40);
     const eventRef = db.collection("webhookEvents").doc(eventId);
     let attempts = 1;
     try {
-      await eventRef.create({ topic, dataId, requestId: headers["x-request-id"] || null, signatureTs: verification.ts, status: "received", attempts, receivedAtMs: now() });
+      await eventRef.create({ paymentEnvironment, topic, dataId, requestId: headers["x-request-id"] || null, signatureTs: verification.ts, status: "received", attempts, receivedAtMs: now() });
     } catch (err) {
       const existing = await eventRef.get();
       if (!existing.exists) throw err;
@@ -661,8 +665,7 @@ function makeWebhook({ db, FieldValue, getProvider, getSecret, engine, now = () 
 }
 
 /** Reprocessa eventos já gravados (assinatura válida) que falharam ou ficaram "received" (instância encerrada no meio). */
-function makeRetryWebhookEvents({ db, FieldValue, getProvider, engine, now = () => Date.now(), maxAttempts = 10, minAgeMs = 2 * 60 * 1000, budgetMs = 20000 }) {
-  const processTopic = makeProcessTopic({ db, FieldValue, getProvider, engine, now });
+function makeRetryWebhookEvents({ db, FieldValue, getProvider, getProviderForEnvironment, engine, now = () => Date.now(), maxAttempts = 10, minAgeMs = 2 * 60 * 1000, budgetMs = 20000 }) {
   return async function retry({ limit = 50 } = {}) {
     const summary = { checked: 0, processed: 0, failed: 0, gaveUp: 0 };
     for (const status of ["failed", "received"]) {
@@ -680,6 +683,8 @@ function makeRetryWebhookEvents({ db, FieldValue, getProvider, engine, now = () 
           continue;
         }
         try {
+          const eventProvider = getProviderForEnvironment ? () => getProviderForEnvironment(e.paymentEnvironment || 'test') : getProvider;
+          const processTopic = makeProcessTopic({ db, FieldValue, getProvider: eventProvider, engine, now, paymentEnvironment: e.paymentEnvironment || 'test' });
           const outcome = await withBudget(processTopic(e.topic, e.dataId), budgetMs);
           await ref.update(clean({ status: "processed", result: outcome.result, subId: outcome.subId, attempts: (e.attempts || 1) + 1, processedAtMs: now() }));
           summary.processed++;

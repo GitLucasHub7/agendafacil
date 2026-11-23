@@ -22,7 +22,7 @@ test("Functions carregam com os SDKs reais e credencial sintética, sem rede nem
     for (const instance of app.getApps()) await app.deleteApp(instance);
   });
   const handlers = fnRequire("./index.js");
-  const expected = ["saveSite", "createSubscription", "cancelSubscription", "syncSubscription", "publishChanges", "deleteAccount", "paymentWebhook", "reconcileSubscriptions", "retryWebhookEvents"];
+  const expected = ["saveSite", "createSubscription", "cancelSubscription", "syncSubscription", "publishChanges", "deleteAccount", "paymentWebhook", "reconcileSubscriptions", "retryWebhookEvents", "getBookingAvailability", "createBooking", "manageBookings", "livePaymentWebhook", "checkPaymentReadiness"];
   assert.deepEqual(Object.keys(handlers).sort(), expected.sort());
   for (const name of expected) { assert.equal(typeof handlers[name], "function"); assert.ok(handlers[name].__endpoint, name); }
   for (const name of expected) {
