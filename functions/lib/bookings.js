@@ -21,6 +21,10 @@ function bookingDate(value, now) {
   return value;
 }
 function validateSettings(input) {
+  if (input?.contactPhone !== undefined && (typeof input.contactPhone !== 'string' || !/^[+\d ()-]{0,24}$/.test(input.contactPhone))) fail('invalid-argument', 'Informe um telefone público válido.');
+  let contactPhone = (input?.contactPhone || '').replace(/\D/g, '');
+  if (contactPhone.length === 10 || contactPhone.length === 11) contactPhone = '55' + contactPhone;
+  if (contactPhone && !/^55\d{10,11}$/.test(contactPhone)) fail('invalid-argument', 'Informe o telefone do estabelecimento com DDD.');
   if (!input || typeof input.enabled !== 'boolean' || !Array.isArray(input.days) || input.days.length > 7 || input.days.some(d => !Number.isInteger(d) || d < 0 || d > 6)) fail('invalid-argument', 'Informe os dias de atendimento.');
   if (!Array.isArray(input.services) || input.services.length < 1 || input.services.length > 12) fail('invalid-argument', 'Cadastre de 1 a 12 serviços.');
   const services = input.services.map((s, i) => {
@@ -34,7 +38,7 @@ function validateSettings(input) {
   const blockedDates = input.blockedDates || [];
   if (!Array.isArray(blockedDates) || blockedDates.length > 90) fail('invalid-argument', 'Máximo de 90 datas bloqueadas.');
   blockedDates.forEach(dateValue);
-  return { enabled: input.enabled, days, services, blockedDates: [...new Set(blockedDates)], timeZone: 'America/Sao_Paulo' };
+  return { enabled: input.enabled, contactPhone, days, services, blockedDates: [...new Set(blockedDates)], timeZone: 'America/Sao_Paulo' };
 }
 function slotsFor(site, settings, date, serviceId, occupied, now) {
   const service = settings.services?.find(s => s.id === serviceId);
@@ -64,9 +68,9 @@ function makeBookings({ db, now = () => Date.now() }) {
     const body = request.data || {};
     const site = await published(body.slug);
     const setting = await settingsRef(site.siteId).get();
-    if (!setting.exists || !setting.data().enabled) return { enabled: false, services: [] };
+    if (!setting.exists || !setting.data().enabled) return { enabled: false, services: [], contactPhone: setting.data()?.contactPhone || '' };
     const config = setting.data();
-    const result = { enabled: true, services: config.services, timeZone: config.timeZone, today: today(now()), lastDate: today(now() + 60 * DAY) };
+    const result = { enabled: true, contactPhone: config.contactPhone || '', services: config.services, timeZone: config.timeZone, today: today(now()), lastDate: today(now() + 60 * DAY) };
     if (body.date && body.serviceId) {
       const date = bookingDate(body.date, now());
       const day = await dayRef(site.siteId, date).get();
@@ -123,6 +127,7 @@ function makeBookings({ db, now = () => Date.now() }) {
     const { data: site } = await loadOwnedSite(db, siteId, uid);
     if (b.action === 'saveSettings') {
       const config = validateSettings(b.settings);
+      if (config.enabled && !config.contactPhone) fail('invalid-argument', 'Cadastre um telefone público para os clientes poderem remarcar ou cancelar.');
       await settingsRef(siteId).set({ ...config, ownerUid: uid, updatedAtMs: now() });
       return { saved: true };
     }

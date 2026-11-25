@@ -37,6 +37,12 @@
     list.replaceChildren();
     try {
       const data = await call('getBookingAvailability', { slug });
+      if (/^55\d{10,11}$/.test(data.contactPhone || '')) {
+        const contact = document.getElementById('business-contact-link');
+        contact.href = 'tel:+' + data.contactPhone;
+        contact.textContent = '+' + data.contactPhone;
+        document.getElementById('business-contact').hidden = false;
+      }
       if (!data.enabled) { message.textContent = 'O estabelecimento ainda não abriu a agenda online.'; form.hidden = true; return; }
       catalog = data.services;
       for (const item of catalog) {

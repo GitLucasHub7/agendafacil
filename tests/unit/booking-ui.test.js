@@ -47,11 +47,23 @@ test('dono configura serviços e abre agenda pelo painel autenticado', async () 
   await p.tick(40);
   assert.equal(p.doc.querySelectorAll('.service-row').length, 1);
   p.doc.querySelector('#booking-enabled').checked = true;
+  p.doc.querySelector('#contact-phone').value = '(11) 90000-0000';
   p.doc.querySelector('#settings-form').dispatchEvent(new p.w.Event('submit', { cancelable: true }));
   await p.tick();
   const save = p.calls.callable.find(([, b]) => b.action === 'saveSettings');
   assert.equal(save[1].settings.enabled, true);
+  assert.equal(save[1].settings.contactPhone, '(11) 90000-0000');
   assert.equal(save[1].settings.services[0].priceCents, 4000);
   assert.match(p.doc.querySelector('#agenda-message').textContent, /salvas/);
   p.w.close();
+});
+
+test('contato do estabelecimento permanece disponível com agenda fechada e rejeita URL insegura', async () => {
+  for (const phone of ['5511900000000', 'javascript:alert(1)']) {
+    const p = await loadPage('site.html', { url: 'https://example.test/s/negocio', scripts: ['render-shared.js', 'booking.js'], state: { callables: { getBookingAvailability: async () => ({ enabled: false, contactPhone: phone }) } } });
+    await p.w.initBooking({ name: 'Negócio' });
+    assert.equal(p.doc.querySelector('#business-contact').hidden, phone.startsWith('javascript'));
+    if (phone.startsWith('55')) assert.equal(p.doc.querySelector('#business-contact-link').getAttribute('href'), 'tel:+' + phone);
+    p.w.close();
+  }
 });

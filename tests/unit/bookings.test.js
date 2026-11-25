@@ -42,7 +42,7 @@ test('agenda fechada, datas bloqueadas, passado e site não publicado não receb
   const w = setup();
   await assert.rejects(w.create(request({ date: '2026-11-18' })), e => e.code === 'invalid-argument');
   assert.throws(() => bookingDate('2026-02-30', now()));
-  await w.manage({ auth: { uid: 'alice' }, data: { siteId, action: 'saveSettings', settings: { enabled: true, days: [4], blockedDates: ['2026-11-19'], services: [{ name: 'Corte', duration: 30, priceCents: 3000 }] } } });
+  await w.manage({ auth: { uid: 'alice' }, data: { siteId, action: 'saveSettings', settings: { enabled: true, contactPhone: "11900000000", days: [4], blockedDates: ['2026-11-19'], services: [{ name: 'Corte', duration: 30, priceCents: 3000 }] } } });
   await assert.rejects(w.create(request()), e => e.code === 'already-exists');
   await w.db.collection('publicSites').doc('negocio').delete();
   await assert.rejects(w.availability({ data: { slug: 'negocio' } }), e => e.code === 'not-found');
@@ -57,4 +57,20 @@ test('validação rejeita durações inválidas, preços adulterados e nomes com
   assert.throws(() => validateSettings({ ...b, services: [{ ...b.services[0], duration: 0 }] }));
   assert.throws(() => validateSettings({ ...b, services: [{ ...b.services[0], priceCents: -1 }] }));
   assert.throws(() => validateSettings({ ...b, days: [8] }));
+});
+
+test('contato público é normalizado, exigido ao abrir e preservado com agenda fechada', async () => {
+  const w = setup();
+  const settings = { enabled: true, days: [4], services: [{ name: 'Corte', duration: 30, priceCents: 3000 }] };
+  const save = s => w.manage({ auth: { uid: 'alice' }, data: { siteId, action: 'saveSettings', settings: s } });
+  await assert.rejects(save(settings), e => e.code === 'invalid-argument');
+  for (const contactPhone of ['javascript:alert(1)', '123', 11900000000, null]) {
+    assert.throws(() => validateSettings({ ...settings, contactPhone }));
+  }
+  await save({ ...settings, contactPhone: '(11) 90000-0000' });
+  assert.equal((await w.availability({ data: { slug: 'negocio' } })).contactPhone, '5511900000000');
+  await save({ ...settings, enabled: false, contactPhone: '+55 (11) 90000-0000' });
+  const closed = await w.availability({ data: { slug: 'negocio' } });
+  assert.equal(closed.enabled, false);
+  assert.equal(closed.contactPhone, '5511900000000');
 });

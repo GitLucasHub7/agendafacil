@@ -34,6 +34,7 @@
       $('#business-hours').textContent = `Horário de atendimento: ${data.start}–${data.end}. Para mudar, edite o site. Há antecedência mínima de uma hora e reservas até 60 dias à frente.`;
       if (!loadedSettings) {
         $('#booking-enabled').checked = data.settings.enabled;
+        $('#contact-phone').value = data.settings.contactPhone || '';
         $('#weekday-options').querySelectorAll('input').forEach(input => { input.checked = data.settings.days.includes(Number(input.value)); });
         $('#blocked-dates').value = data.settings.blockedDates.join(', ');
         services.replaceChildren(); data.settings.services.forEach(serviceRow); loadedSettings = true;
@@ -73,7 +74,7 @@
     const button = $('#save-settings'); button.disabled = true;
     try {
       const items = [...services.children].map(row => ({ name: row.querySelector('[data-field=name]').value, duration: Number(row.querySelector('[data-field=duration]').value), priceCents: Math.round(Number(row.querySelector('[data-field=price]').value) * 100) }));
-      await call('saveSettings', { settings: { enabled: $('#booking-enabled').checked, days: [...$('#weekday-options').querySelectorAll('input:checked')].map(input => Number(input.value)), blockedDates: $('#blocked-dates').value.split(/[\s,;]+/).filter(Boolean), services: items } });
+      await call('saveSettings', { settings: { enabled: $('#booking-enabled').checked, contactPhone: $('#contact-phone').value, days: [...$('#weekday-options').querySelectorAll('input:checked')].map(input => Number(input.value)), blockedDates: $('#blocked-dates').value.split(/[\s,;]+/).filter(Boolean), services: items } });
       updateState($('#booking-enabled').checked);
       message.textContent = 'Configurações salvas. A agenda ficará disponível no site publicado.';
     } catch (err) { showError(err); } finally { button.disabled = false; }

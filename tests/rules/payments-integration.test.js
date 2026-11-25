@@ -30,7 +30,7 @@ test('Firestore real: reservas simultâneas não sobrepõem; cancelamento libera
   await db.collection('sites').doc(siteId).set(site);
   await db.collection('publicSites').doc('booking-emulator').set(site);
   const b = makeBookings({ db, now: () => Date.parse('2026-11-19T08:00:00-03:00') });
-  await b.manage({ auth: { uid: site.ownerUid }, data: { action: 'saveSettings', siteId, settings: { enabled: true, days: [4], services: [{ name: 'Corte', duration: 60, priceCents: 5000 }] } } });
+  await b.manage({ auth: { uid: site.ownerUid }, data: { action: 'saveSettings', siteId, settings: { enabled: true, contactPhone: "11900000000", days: [4], services: [{ name: 'Corte', duration: 60, priceCents: 5000 }] } } });
   const make = (key, time) => ({ rawRequest: { ip: '192.0.2.20' }, data: { slug: 'booking-emulator', date: '2026-11-19', time, name: 'Pessoa Fictícia', phone: '11999999999', serviceId: 'service1', requestKey: key.repeat(32), consent: true } });
   const results = await Promise.allSettled([b.create(make('a', '10:00')), b.create(make('b', '10:30'))]);
   assert.equal(results.filter(r => r.status === 'fulfilled').length, 1);
