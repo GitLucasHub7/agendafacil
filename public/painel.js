@@ -163,6 +163,7 @@
   }
 
   if (!AF.ready) {
+    $("#loading-state").hidden = true;
     say("O Firebase não iniciou: " + (AF.initError || "confira public/firebase-config.js") + ".");
     return;
   }
@@ -230,4 +231,13 @@
       onError(err);
     }
   }
-})();
+})().catch(err => {
+  console.error('Falha ao iniciar o painel:', err);
+  const loading = document.getElementById('loading-state');
+  if (loading) loading.hidden = true;
+  const message = document.getElementById('panel-message');
+  if (message) {
+    message.textContent = 'Não foi possível abrir o painel. Recarregue a página para tentar novamente.';
+    message.hidden = false;
+  }
+});

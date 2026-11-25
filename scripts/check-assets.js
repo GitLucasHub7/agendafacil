@@ -21,7 +21,8 @@ function checkAssets(root) {
       if (!file.startsWith(pub + path.sep) || !fs.existsSync(file)) errors.push(`${page}: recurso ausente/inválido: ${asset}`);
     }
     const before = (dependency, consumer) => {
-      if (scripts.includes(consumer) && (!scripts.includes(dependency) || scripts.indexOf(dependency) >= scripts.indexOf(consumer))) errors.push(`${page}: ${dependency} precisa carregar antes de ${consumer}`);
+      const names = scripts.map(src => src.split(/[?#]/)[0]);
+      if (names.includes(consumer) && (!names.includes(dependency) || names.indexOf(dependency) >= names.indexOf(consumer))) errors.push(`${page}: ${dependency} precisa carregar antes de ${consumer}`);
     };
     before("app-mode.js", "auth-shared.js");
     before("firebase-config.js", "auth-shared.js");
