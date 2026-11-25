@@ -162,8 +162,8 @@ test("FIAÇÃO: todo script/CSS local referenciado existe e a ordem de carga est
   for (const file of fs.readdirSync(pub).filter((f) => f.endsWith(".html"))) {
     const html = read("public/" + file);
     const refs = [...html.matchAll(/<(?:script|link)[^>]+(?:src|href)="([^"]+)"/g)].map((m) => m[1]).filter((u) => !/^(https?:)?\/\//.test(u) && !u.startsWith("data:"));
-    for (const ref of refs) assert.equal(fs.existsSync(path.join(pub, ref.replace(/^\//, ""))), true, `${file} referencia ${ref}, que não existe`);
-    const scripts = refs.filter((r) => r.endsWith(".js")).map((r) => r.replace(/^\//, ""));
+    for (const ref of refs) assert.equal(fs.existsSync(path.join(pub, ref.split(/[?#]/)[0].replace(/^\//, ""))), true, `${file} referencia ${ref}, que não existe`);
+    const scripts = refs.map((r) => r.split(/[?#]/)[0]).filter((r) => r.endsWith(".js")).map((r) => r.replace(/^\//, ""));
     const before = (a, b) => assert.ok(scripts.indexOf(a) !== -1 && scripts.indexOf(a) < scripts.indexOf(b), `${file}: ${a} deve carregar antes de ${b}`);
     if (scripts.includes("auth-shared.js")) before("app-mode.js", "auth-shared.js"); // AF.mode lê APP_MODE ao iniciar
     if (scripts.includes("auth-shared.js")) before("firebase-config.js", "auth-shared.js");
