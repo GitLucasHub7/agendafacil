@@ -18,7 +18,7 @@ Atualizado em 25/11/2026. Este repositório usa configurações de exemplo; as c
 ## Verificações que continuam abertas
 
 - [ ] Acompanhar a primeira venda real: pagamento, notificação, ativação e publicação. O responsável não precisa comprar a própria assinatura.
-- [ ] Validar entrega e recebimento na caixa de suporte informada.
+- [x] Recebimento e resposta do e-mail de suporte verificados em 25/11/2026, com mensagem de teste e retorno confirmado.
 - [ ] Validar recusa e estorno no gateway externo; os testes automatizados desses cenários não substituem a homologação externa.
 
 ## Limites atuais
