@@ -28,3 +28,8 @@ Atualizado em 25/11/2026. Este repositório usa configurações de exemplo; as c
 - Não há envio automático de lembretes por WhatsApp ou e-mail.
 - O pagamento dos serviços agendados é combinado com o estabelecimento; a integração cobra a assinatura da plataforma.
 - As páginas legais descrevem a versão atual e não representam certificação jurídica.
+
+## Apresentação pública
+
+- [x] Página inicial com benefícios, exemplo ilustrativo, preço, dúvidas frequentes e acesso voluntário ao painel; sem redirecionamento automático.
+- [ ] Pix e boleto para pagamento por período: checkout recorrente atual conferido e não exibiu essas opções. Integração adicional ainda não liberada.

@@ -64,7 +64,7 @@ test("App Check (cliente): ativa com a chave configurada; sem chave não ativa; 
 });
 
 test("Páginas que usam Firebase carregam o SDK do App Check e a CSP o permite sem afrouxar scripts inline", () => {
-  for (const f of ["editor.html", "painel.html", "login.html", "index.html"]) assert.match(read("public/" + f), /firebase-app-check-compat\.js/, f);
+  for (const f of ["editor.html", "painel.html", "login.html"]) assert.match(read("public/" + f), /firebase-app-check-compat\.js/, f);
   const fb = JSON.parse(read("firebase.json"));
   const csp = fb.hosting.headers[0].headers.find((h) => h.key === "Content-Security-Policy").value;
   assert.match(csp, /script-src[^;]*https:\/\/www\.google\.com\/recaptcha\//);

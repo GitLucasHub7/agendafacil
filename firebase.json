@@ -46,6 +46,10 @@
         "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
       },
       {
+        "source": "/",
+        "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+      },
+      {
         "source": "/@(firebase-config|app-mode).js",
         "headers": [{ "key": "Cache-Control", "value": "no-store" }]
       }
