@@ -283,7 +283,7 @@ async function startSubscription() {
   const button = $("#start-subscription");
   if (button.disabled) return;
   button.disabled = true;
-  button.textContent = "Abrindo o Mercado Pago…";
+  button.textContent = "Abrindo opções de pagamento…";
   try {
     // Confirma o e-mail antes: o servidor exige e-mail verificado (claim atualizado no token).
     if (!currentUser.emailVerified) {
@@ -295,16 +295,7 @@ async function startSubscription() {
         return;
       }
     }
-    const createSubscription = functionsClient.httpsCallable("createSubscription");
-    // Só o siteId vai ao servidor; preço, periodicidade, e-mail e posse são definidos lá.
-    const result = await window.AgendaFacilRender.withTimeout(createSubscription({ siteId: currentSiteId }), 20000, "tempo esgotado iniciando a assinatura");
-    if (result.data && result.data.processing) {
-      showToast("Estamos confirmando sua assinatura. Aguarde um pouco antes de tentar novamente.");
-      return;
-    }
-    const initPoint = result.data && result.data.initPoint;
-    if (typeof initPoint !== "string" || !CHECKOUT_URL.test(initPoint)) throw new Error("link de checkout inesperado");
-    AF.navigate(initPoint);
+    AF.navigate("pagamento.html?site=" + encodeURIComponent(currentSiteId));
   } catch (err) {
     console.error(err);
     const code = err && err.code;
@@ -312,7 +303,7 @@ async function startSubscription() {
     else if (code === "functions/failed-precondition") showToast(err.message || "Confirme seu e-mail para assinar.");
     else showToast("Não consegui iniciar a assinatura agora. Tente de novo em instantes.");
   } finally {
-    button.textContent = "Assinar e continuar no Mercado Pago →";
+    button.textContent = "Escolher forma de pagamento";
     updateVerifyNotice();
   }
 }

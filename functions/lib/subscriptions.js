@@ -212,7 +212,7 @@ function makeCreateSubscription({ db, FieldValue, getProvider, getAppBaseUrl, ge
   // Transação ÚNICA: trava de criação por site + reserva do endereço + registro da assinatura.
   // O Firestore reexecuta a transação se outra escrita concorrente mudar o que foi lido: por isso duas
   // chamadas simultâneas nunca abrem dois preapprovals nem dois sites reservam o mesmo slug.
-  async function reserve(uid, siteId) {
+  async function reserve(uid, siteId, billingMode) {
     return db.runTransaction(async (tx) => {
       const ts = now();
       const siteRef = db.collection("sites").doc(siteId);
@@ -234,12 +234,17 @@ function makeCreateSubscription({ db, FieldValue, getProvider, getAppBaseUrl, ge
 
       if (existing) {
         if (existing.creationState === "needs_cancel") return { type: "processing", subscriptionId: existing.id };
-        if (existing.status === STATUS.ACTIVE || existing.status === STATUS.PAST_DUE) return { type: "already" };
+        if (existing.status === STATUS.ACTIVE || existing.status === STATUS.PAST_DUE || (existing.accessUntil && existing.accessUntil > ts)) return { type: "already" };
+        if ((existing.billingMode || 'recurring') !== billingMode && existing.mpPreapprovalId && existing.mpStatus !== 'cancelled') return { type: 'retire', sub: existing };
         if ((existing.paymentEnvironment || 'test') !== getPaymentEnvironment() && existing.mpPreapprovalId && existing.mpStatus !== 'cancelled') return { type: "retire", sub: existing };
         const alive = existing.status === STATUS.PENDING && existing.requestedCancel !== true && existing.mpStatus !== "cancelled";
         if (alive && existing.creationState === "creating") {
           if (ts - (existing.creationStartedAtMs || 0) < CREATION_LOCK_MS) return { type: "processing", subscriptionId: existing.id };
           return { type: "recover", sub: existing };
+        }
+        if (existing.billingMode === 'manual' && billingMode === 'manual' && existing.mpPreapprovalId && !existing.requestedCancel && existing.creationState !== 'creating' && !(existing.manualCheckoutExpiresAt > ts)) {
+          tx.update(db.collection('subscriptions').doc(existing.id), { creationState: 'creating', creationStartedAtMs: ts, manualCheckoutGeneration: (existing.manualCheckoutGeneration || 0) + 1, initPoint: null, manualCheckoutUrl: null });
+          return { type: 'created', subscriptionId: existing.id, slug };
         }
         if (alive && existing.creationState !== "failed" && existing.initPoint && ts - (existing.createdAtMs || 0) < PENDING_ABANDON_DAYS * DAY_MS) {
           // Checkout pendente reaproveitado: garante que a RESERVA acompanha o endereço atual (o dono pode ter renomeado o site).
@@ -264,6 +269,7 @@ function makeCreateSubscription({ db, FieldValue, getProvider, getAppBaseUrl, ge
       if (oldClaimSnap && oldClaimSnap.exists && oldClaimSnap.data().siteId === siteId && oldClaimSnap.data().state !== "published") tx.delete(db.collection("slugClaims").doc(site.slugClaim));
       tx.set(subRef, {
         paymentEnvironment: getPaymentEnvironment(),
+        billingMode,
         ownerUid: uid,
         siteId,
         slug,
@@ -328,6 +334,8 @@ function makeCreateSubscription({ db, FieldValue, getProvider, getAppBaseUrl, ge
     }
 
     // O cliente só informa QUAL site. Preço, moeda, periodicidade, referência e e-mail vêm do servidor.
+    const billingMode = request.data?.billingMode || 'recurring';
+    if (!['recurring', 'manual'].includes(billingMode)) throw new HttpsError('invalid-argument', 'Escolha uma forma de pagamento válida.');
     const siteId = parseSiteId((request.data || {}).siteId);
     const { data: site } = await loadOwnedSite(db, siteId, auth.uid);
     try {
@@ -338,9 +346,12 @@ function makeCreateSubscription({ db, FieldValue, getProvider, getAppBaseUrl, ge
 
     let decision;
     for (let attempt = 0; attempt < 3; attempt++) {
-      decision = await reserve(auth.uid, siteId);
+      decision = await reserve(auth.uid, siteId, billingMode);
       if (decision.type === "recover") decision = await recover(decision.sub, payerEmail);
       if (decision.type === "retire") {
+        await makeEngine(ctx).syncFromGateway(decision.sub.id);
+        const refreshed = (await db.collection('subscriptions').doc(decision.sub.id).get()).data();
+        if (refreshed.accessUntil > now()) throw new HttpsError('failed-precondition', 'O pagamento anterior já foi confirmado. Atualize o painel.');
         try {
           await getProvider().cancelPreapproval(decision.sub.mpPreapprovalId);
         } catch {

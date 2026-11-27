@@ -37,7 +37,7 @@
 
   // "next" só pode apontar para páginas internas conhecidas (evita open redirect).
   function safeNext(value, fallback) {
-    return typeof value === "string" && /^(painel|editor|agenda)\.html(\?[A-Za-z0-9=&_-]*)?$/.test(value) ? value : fallback;
+    return typeof value === "string" && /^(painel|editor|agenda|pagamento)\.html(\?[A-Za-z0-9=&_-]*)?$/.test(value) ? value : fallback;
   }
 
   // AF.go centraliza a navegação (e permite testar redirecionamentos).

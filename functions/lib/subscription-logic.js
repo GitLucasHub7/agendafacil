@@ -163,6 +163,9 @@ function reduce({ now, sub, site, siteCheck, invoices, gateway, publicTarget, st
     status = sub.status === STATUS.CANCELLED || sub.status === STATUS.SUSPENDED ? sub.status : STATUS.PENDING;
   } else if (sub.status === STATUS.SUSPENDED && (sub.statusReason === "refund" || sub.statusReason === "chargeback")) {
     status = STATUS.SUSPENDED; // nunca "rebaixa" uma suspensão por estorno para carência
+  } else if (sub.billingMode === 'manual') {
+    status = STATUS.SUSPENDED;
+    reason = 'manual_expired';
   } else {
     graceUntil = (paidThrough || sub.currentPeriodEnd || now) + GRACE_DAYS * DAY_MS;
     if (now <= graceUntil) {

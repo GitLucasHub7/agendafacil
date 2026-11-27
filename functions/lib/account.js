@@ -71,7 +71,7 @@ function makeDeleteAccount({ db, FieldValue, getProvider, deleteAuthUser, now = 
     for (const claim of claims) await db.collection("slugClaims").doc(claim.id).delete();
 
     for (const s of subs) {
-      await db.collection("subscriptions").doc(s.id).update({ ownerUid: anon, accountDeleted: true, status: "cancelled", statusReason: "account_deleted", requestedCancel: true, settled: true, initPoint: null, accessUntil: null, updatedAt: FieldValue.serverTimestamp() });
+      await db.collection("subscriptions").doc(s.id).update({ ownerUid: anon, accountDeleted: true, status: "cancelled", statusReason: "account_deleted", requestedCancel: true, settled: true, initPoint: null, manualCheckoutUrl: null, accessUntil: null, updatedAt: FieldValue.serverTimestamp() });
     }
     for (const col of ["subscriptionInvoices", "payments", "incidents"]) {
       const snap = await db.collection(col).where("ownerUid", "==", uid).get();

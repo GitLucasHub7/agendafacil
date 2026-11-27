@@ -27,7 +27,7 @@ function getSubscriptionProvider(environment = getPaymentEnvironment()) {
       const create = provider.createPreapproval;
       provider.createPreapproval = async args => { await verifyProductionAccount(); return create(args); };
     }
-    return provider;
+    return require('./manualCheckout').withManualCheckout({ recurring: provider, db: getFirestore(), accessToken: value === 'live' ? liveAccessToken.value() : baseSecrets[0].value(), environment: value, verifyMerchant: value === 'live' ? verifyProductionAccount : async () => {} });
   } });
 }
 

@@ -20,21 +20,16 @@ test("modo ausente bloqueia Firebase/pagamento e mantém a ajuda acessível", as
   assert.equal(page.calls.callable.length, 0);
 });
 
-test("checkout informa criação em processamento sem redirecionar nem duplicar chamada", async (t) => {
-  const page = await loadPage("editor.html", { scripts: EDITOR, config: VALID, state: editorState(verifiedUser, { callables: { createSubscription: async () => ({ processing: true, subscriptionId: "SUB1" }) } }) });
-  t.after(() => page.w.close());
-  await page.tick();
-  typeName(page);
-  page.doc.querySelector("#publish-button").click();
-  await page.tick(50);
-  const button = page.doc.querySelector("#start-subscription");
-  button.click();
-  button.click();
-  await page.tick(50);
-  assert.match(page.doc.querySelector("#toast").textContent, /confirmando sua assinatura/);
-  assert.equal(page.navigations.length, 0);
-  assert.equal(page.calls.callable.filter(([name]) => name === "createSubscription").length, 1);
+test("checkout informa processamento e evita clique duplicado", async t => {
+ const page=await paymentPage(async()=>({processing:true}));t.after(()=>page.w.close());
+ const button=page.doc.querySelector('#pay-manual');button.click();button.click();await page.tick(40);
+ assert.match(page.doc.querySelector('#payment-message').textContent,/confirmando/);
+ assert.equal(page.navigations.length,0);assert.equal(page.calls.callable.length,1);
 });
+async function paymentPage(handler) {
+ const page=await loadPage('pagamento.html',{url:'http://localhost/pagamento.html?site=SITE123456789',scripts:['firebase-config.js','auth-shared.js','pagamento.js'],config:VALID,state:{user:verifiedUser,docs:{'sites/SITE123456789':{ownerUid:'u1',name:'Meu negócio'}},callables:{createSubscription:handler}}});
+ await page.tick(40);return page;
+}
 
 function typeName(page, name = "Maicon do Corte") {
   const input = page.doc.querySelector("#business-name");
@@ -80,31 +75,19 @@ test("editor sem sessão redireciona para o login com next e não chama o servid
   assert.equal(page.calls.callable.length, 0);
 });
 
-test("assinar envia SOMENTE o siteId (sem preço, e-mail ou plano do navegador) e vai ao checkout do Mercado Pago", async () => {
-  const page = await loadPage("editor.html", { scripts: EDITOR, config: VALID, state: editorState(verifiedUser) });
-  await page.tick();
-  typeName(page);
-  page.doc.querySelector("#publish-button").click();
-  await page.tick(50);
-  page.doc.querySelector("#start-subscription").click();
-  await page.tick(50);
-  const call = page.calls.callable.find((c) => c[0] === "createSubscription");
-  assert.equal(JSON.stringify(call[1]), JSON.stringify({ siteId: "SITE123456789" }));
-  assert.deepEqual([...page.navigations], ["https://www.mercadopago.com.br/subscriptions/checkout?preapproval_id=1"]);
-  assert.equal(page.calls.callable.some((c) => c[0] === "createCharge"), false, "o Pix avulso não existe mais");
+test("editor encaminha à escolha de pagamento sem iniciar cobrança",async()=>{
+ const page=await loadPage('editor.html',{scripts:EDITOR,config:VALID,state:editorState(verifiedUser)});
+ await page.tick();typeName(page);page.doc.querySelector('#publish-button').click();await page.tick(50);page.doc.querySelector('#start-subscription').click();await page.tick(40);
+ assert.deepEqual(page.navigations,['pagamento.html?site=SITE123456789']);assert.equal(page.calls.callable.some(([n])=>n==='createSubscription'),false);page.w.close();
 });
-
-test("critério 6: link de checkout malicioso devolvido pelo servidor nunca é aberto", async () => {
-  for (const evil of ["javascript:alert(1)", "https://evil.example/pay", "https://mercadopago.com.evil.com/x", "https://evilmercadopago.com/x", "http://www.mercadopago.com.br/x", "//www.mercadopago.com.br/x"]) {
-    const page = await loadPage("editor.html", { scripts: EDITOR, config: VALID, state: editorState(verifiedUser, { callables: { createSubscription: async () => ({ initPoint: evil }) } }) });
-    await page.tick();
-    typeName(page);
-    page.doc.querySelector("#publish-button").click();
-    await page.tick(50);
-    page.doc.querySelector("#start-subscription").click();
-    await page.tick(50);
-    assert.equal(page.navigations.length, 0, evil);
-  }
+test("escolha de pagamento envia apenas site e modalidade; rejeita URLs maliciosas",async()=>{
+ for(const mode of ['manual','recurring']){
+ const page=await paymentPage(async()=>({initPoint:'https://www.mercadopago.com.br/checkout/v1?pref=1'}));page.doc.querySelector('#pay-'+mode).click();await page.tick(40);
+ assert.equal(JSON.stringify(page.calls.callable[0][1]),JSON.stringify({siteId:'SITE123456789',billingMode:mode}));assert.equal(page.navigations.length,1);page.w.close();
+ }
+ for(const url of ['javascript:alert(1)','https://mercadopago.com.evil.com/x','https://evilmercadopago.com/x','http://www.mercadopago.com.br/x']){
+ const page=await paymentPage(async()=>({initPoint:url}));page.doc.querySelector('#pay-manual').click();await page.tick(40);assert.equal(page.navigations.length,0);page.w.close();
+ }
 });
 
 test("o editor não tem mais Pix nem preço de R$ 49; mostra R$ 21,90/mês", async () => {
@@ -179,8 +162,8 @@ test("painel: ações reais — concluir assinatura, atualizar status, cancelar 
   } };
   const panel = await loadPage("painel.html", { scripts: PANEL, config: VALID, state });
   await panel.tick(50);
-  buttonByText(panel, cardOf(panel, "Site Pendente"), "Concluir assinatura").click();
-  assert.deepEqual([...panel.navigations], ["https://www.mercadopago.com.br/subscriptions/checkout?preapproval_id=9"]);
+  buttonByText(panel, cardOf(panel, "Site Pendente"), "Escolher pagamento").click();
+  assert.deepEqual([...panel.navigations], ["pagamento.html?site=S2aaaaaaaaaa"]);
   buttonByText(panel, cardOf(panel, "Site Pendente"), "Já paguei — atualizar").click();
   await panel.tick();
   assert.equal(JSON.stringify(callsOf(panel, "syncSubscription")[0][1]), JSON.stringify({ siteId: "S2aaaaaaaaaa" }));
@@ -197,8 +180,8 @@ test("painel: ações reais — concluir assinatura, atualizar status, cancelar 
 
   buttonByText(panel, cardOf(panel, "Site Suspenso"), "Assinar de novo").click();
   await panel.tick();
-  assert.equal(JSON.stringify(callsOf(panel, "createSubscription")[0][1]), JSON.stringify({ siteId: "S3aaaaaaaaaa" }));
-  assert.equal(panel.navigations.at(-1), "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_id=77");
+  assert.equal(callsOf(panel, "createSubscription").length, 0);
+  assert.equal(panel.navigations.at(-1), "pagamento.html?site=S3aaaaaaaaaa");
 });
 
 test("painel: ao voltar do checkout (?assinatura=retorno) sincroniza as assinaturas pendentes", async () => {

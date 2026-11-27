@@ -227,7 +227,7 @@ test("painel Blaze continua usando as Cloud Functions (comportamento anterior pr
   const page = await loadPage("painel.html", { scripts: PANEL, config: VALID, appMode: "blaze", state: { user, docs, callables: { syncSubscription: async () => ({}) } } });
   await page.tick(60);
   const c = card(page, "Pendente");
-  assert.ok(btn(c, "Concluir assinatura"));
+  assert.ok(btn(c, "Escolher pagamento"));
   btn(c, "Já paguei — atualizar").click();
   await page.tick();
   assert.equal(page.calls.callable.filter((x) => x[0] === "syncSubscription").length, 1);

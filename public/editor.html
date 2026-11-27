@@ -103,8 +103,8 @@
       <div class="checkout-order"><div><span>Assinatura mensal do site</span><small>Site, agenda online e personalização</small></div><strong>R$ 21,90<small>/mês</small></strong></div>
       <div class="field-card email-card"><label for="payer-email">E-mail da sua conta (recibo e confirmação)</label><div class="text-field"><input id="payer-email" type="email" readonly /></div><p class="verify-notice" id="verify-notice" role="alert" hidden>Confirme seu e-mail para assinar. Enviamos um link para a sua caixa de entrada. <button class="auth-link" type="button" id="resend-verification">Reenviar e-mail</button></p></div>
       <p class="verify-notice">Confira as <a href="/termos.html" target="_blank" rel="noopener">condições da assinatura</a> e as <a href="/privacidade.html" target="_blank" rel="noopener">informações de privacidade</a> antes de continuar.</p>
-      <div id="subscription-area"><button class="pay-button" id="start-subscription" data-mp-subscription-cta="without-plan-pending">Assinar e continuar no Mercado Pago <span>→</span></button></div>
-      <p class="checkout-security">🔒 Você conclui o pagamento no ambiente seguro do Mercado Pago; nenhum dado de cartão passa pelo AgendaFácil. A cobrança é mensal e recorrente (R$ 21,90 por site), com os meios de pagamento habilitados pelo Mercado Pago para assinaturas. Você pode cancelar quando quiser: o site continua no ar até o fim do período já pago. Se um pagamento falhar, o site continua no ar por 7 dias de carência.</p>
+      <div id="subscription-area"><button class="pay-button" id="start-subscription" data-payment-entry="choose">Escolher forma de pagamento</button></div>
+      <p class="checkout-security">🔒 Você conclui o pagamento no ambiente seguro do Mercado Pago; nenhum dado de cartão passa pelo AgendaFácil. No cartão recorrente, você pode cancelar a renovação pelo painel; há sete dias de carência em caso de falha na renovação. No pagamento por período, você renova manualmente após o vencimento, sem cobrança automática e sem carência.</p>
     </dialog>
     <div class="toast" id="toast" role="status"></div>
     <script src="https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js"></script>
@@ -117,6 +117,6 @@
     <script src="firebase-config.js"></script>
     <script src="app-mode.js"></script>
     <script src="auth-shared.js"></script>
-    <script src="app.js?v=20261123-2"></script>
+    <script src="app.js?v=20261127-1"></script>
   </body>
 </html>

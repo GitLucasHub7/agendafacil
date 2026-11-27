@@ -29,6 +29,7 @@
 
   const dateOf = (ms) => (typeof ms === "number" ? new Date(ms).toLocaleDateString("pt-BR") : "—");
   const REASONS = {
+    manual_expired: 'fim do período pago; renove para voltar ao ar',
     grace_expired: "falta de pagamento (a carência de 7 dias terminou)",
     payment_failed: "falta de pagamento (o Mercado Pago encerrou as tentativas)",
     refund: "estorno do pagamento",
@@ -41,6 +42,7 @@
     const status = sub ? sub.status : "none";
     if (!sub || status === "none") return { label: "Rascunho", css: "", note: spark ? "Rascunho salvo na sua conta. Publicar exige Cloud Functions (plano Blaze)." : "Ainda sem assinatura.", kind: "draft" };
     if (status === "pending") return { label: "Aguardando pagamento", css: "pending", note: "Conclua a assinatura no Mercado Pago. O site é publicado quando o primeiro pagamento for confirmado.", kind: "pending" };
+    if (status === 'active' && sub.billingMode === 'manual') return { label: 'Período pago', css: 'published', note: 'Pago até ' + dateOf(sub.currentPeriodEnd) + '. Sem renovação automática. Após o vencimento, pague um novo período pelo painel.', kind: 'manual_active' };
     if (status === "active") return { label: "Assinatura ativa", css: "published", note: `Paga até ${dateOf(sub.currentPeriodEnd)}. Próxima cobrança: ${dateOf(sub.nextPaymentDate || sub.currentPeriodEnd)}. Renovação automática pelo Mercado Pago.`, kind: "active" };
     if (status === "past_due") return { label: "Pagamento em atraso", css: "pending", note: `O Mercado Pago está tentando cobrar de novo. Seu site continua no ar até ${dateOf(sub.accessUntil)}; depois disso é suspenso.`, kind: "past_due" };
     if (status === "suspended") return { label: "Suspenso", css: "", note: `Motivo: ${REASONS[sub.statusReason] || "pagamento"}. Seus dados estão guardados; o site volta ao ar quando o pagamento for confirmado.`, kind: "suspended" };
@@ -64,8 +66,7 @@
   }
 
   async function subscribe(siteId) {
-    const data = await call("createSubscription", { siteId });
-    if (data && typeof data.initPoint === "string" && CHECKOUT_URL.test(data.initPoint)) AF.navigate(data.initPoint);
+    AF.navigate('pagamento.html?site=' + encodeURIComponent(siteId));
   }
 
   function button(text, handler, secondary) {
@@ -99,7 +100,7 @@
       if (!site.published) actions.append(edit());
     } else {
     if (info.kind === "pending") {
-      if (sub.initPoint && CHECKOUT_URL.test(sub.initPoint)) actions.append(button("Concluir assinatura", () => AF.navigate(sub.initPoint)));
+      actions.append(button('Escolher pagamento', () => subscribe(id)));
       actions.append(button("Já paguei — atualizar", async () => { await call("syncSubscription", { siteId: id }, "Status atualizado."); }, true), edit());
     }
     if (info.kind === "active" || info.kind === "past_due") {

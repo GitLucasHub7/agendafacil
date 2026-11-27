@@ -50,3 +50,22 @@ test("SDK real não repete criação automaticamente após HTTP 500", async (t) 
   await assert.rejects(createSubscriptionProvider("FAKE-OFFLINE").createPreapproval(terms));
   assert.equal(attempts, 1);
 });
+
+test('SDK real usa Preferences para checkout manual e Payments para confirmação, sem preapproval', async t => {
+ const { createFakeDb }=require('../helpers/fakeFirestore');
+ const { withManualCheckout, PREFIX }=require('../../functions/payments/manualCheckout');
+ const db=createFakeDb();db.seed('subscriptions/sub-local',{billingMode:'manual',paymentEnvironment:'test'});
+ const saved=global.fetch; t.after(()=>{global.fetch=saved;}); const calls=[];
+ const pref={id:'pref-1',init_point:'https://www.mercadopago.com.br/checkout/v1?pref_id=1'};
+ global.fetch=async(url,options)=>{
+  const u=new URL(url); assert.equal(u.origin,'https://api.mercadopago.com'); calls.push([options.method,u.pathname,options.body?JSON.parse(options.body):null]);
+  if(u.pathname.replace(/\/$/,'')==='/checkout/preferences')return Response.json(pref);
+  if(u.pathname==='/v1/payments/search')return Response.json({paging:{total:0},results:[]});
+  if(u.pathname==='/checkout/preferences/pref-1')return Response.json(pref);
+  throw Error('Endpoint inesperado '+u.pathname);
+ };
+ const p=withManualCheckout({recurring:{},db,accessToken:'FAKE-OFFLINE',environment:'test'});
+ await p.createPreapproval(terms);await p.searchInvoices({preapprovalId:PREFIX+'sub-local'});await p.cancelPreapproval(PREFIX+'sub-local');
+ assert.equal(calls[0][2].items[0].unit_price,21.9);assert.equal(calls[0][2].auto_return,'approved');assert.ok(calls.some(c=>c[0]==='PUT'&&c[1]==='/checkout/preferences/pref-1'));
+ assert.equal(calls.some(c=>c[1].includes('preapproval')),false);
+});
