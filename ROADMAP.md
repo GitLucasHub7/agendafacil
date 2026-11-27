@@ -34,3 +34,4 @@ Atualizado em 25/11/2026. Este repositório usa configurações de exemplo; as c
 - [x] Página inicial com benefícios, exemplo ilustrativo, preço, dúvidas frequentes e acesso voluntário ao painel; sem redirecionamento automático.
 - [x] Checkout por período publicado: cartão e boleto exibidos na conferência de 27/11/2026, sem efetuar pagamento.
 - [x] Pix exibido no checkout após cadastro da chave pelo titular e reabertura pelo site, em 27/11/2026. Compensação real ainda não testada.
+- [ ] Bloqueio na revisão do Pix: botão Gerar código permanece desabilitado após atualização do e-mail pelo titular e nova seleção do Pix. Nesta sessão não houve mensagem de validação nem erro de console. Causa ainda não determinada; geração de QR Code e compensação não validadas.

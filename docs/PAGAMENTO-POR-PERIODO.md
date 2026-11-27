@@ -35,3 +35,8 @@ Não há certificação ou avaliação oficial de qualidade do Mercado Pago nest
 
 Após o cadastro da chave pelo titular, o checkout mensal foi reaberto pelo AgendaFácil: Pix, cartão e boleto exibidos, total R$ 21,90, sem login do comprador no Mercado Pago. A chave não foi incluída no código ou na documentação. Nenhuma compra foi concluída ou boleto emitido. Deploy concluído; 260 testes locais passaram e a validação do GitHub passou no commit 7eb7549.
 
+
+### Pendência após revisão do Pix
+
+A disponibilidade visual do Pix não comprova sua operação. Após o usuário atualizar o e-mail para outra conta, o botão Gerar código permaneceu desabilitado. A seleção do Pix foi refeita pela interface e o bloqueio persistiu, sem mensagem de validação ou erro no console nessa sessão. Nenhum pagamento foi gerado. Causa não determinada; requer investigação do checkout pelo Mercado Pago antes de considerar o fluxo validado.
+
