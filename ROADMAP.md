@@ -32,4 +32,5 @@ Atualizado em 25/11/2026. Este repositório usa configurações de exemplo; as c
 ## Apresentação pública
 
 - [x] Página inicial com benefícios, exemplo ilustrativo, preço, dúvidas frequentes e acesso voluntário ao painel; sem redirecionamento automático.
-- [ ] Pix e boleto para pagamento por período: checkout recorrente atual conferido e não exibiu essas opções. Integração adicional ainda não liberada.
+- [x] Checkout por período publicado: cartão e boleto exibidos na conferência de 27/11/2026, sem efetuar pagamento.
+- [ ] Pix: não exibido no checkout. Conferir chave Pix cadastrada na conta recebedora e repetir a validação. Compensação real ainda não testada.

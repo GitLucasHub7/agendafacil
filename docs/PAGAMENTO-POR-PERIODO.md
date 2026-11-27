@@ -30,3 +30,8 @@ Testes automatizados cobrem boleto pendente, aprovação, notificação repetida
 O validador estático do plugin não reconhece o cliente injetado do adaptador e reporta ausência da rota de criação. A chamada real `Preference.create` é coberta pelo teste de contrato do SDK; não foi substituída por uma rota Express artificial.
 
 Não há certificação ou avaliação oficial de qualidade do Mercado Pago nesta entrega. Testes automatizados não comprovam compensação bancária de boleto nem uma compra real. A disponibilidade final de cada meio deve ser conferida no checkout da conta recebedora.
+
+## Conferência publicada em 27/11/2026
+
+Checkout mensal aberto na conta recebedora: cartão e boleto exibidos, total R$ 21,90. Pix não apareceu. A documentação oficial exige chave Pix cadastrada na conta recebedora; esse requisito ainda precisa ser conferido pelo titular. Nenhuma compra foi concluída ou boleto emitido. Deploy concluído; 260 testes locais passaram e a validação do GitHub passou no commit 7eb7549.
+
