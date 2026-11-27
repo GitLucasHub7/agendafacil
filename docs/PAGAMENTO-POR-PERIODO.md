@@ -33,5 +33,5 @@ Não há certificação ou avaliação oficial de qualidade do Mercado Pago nest
 
 ## Conferência publicada em 27/11/2026
 
-Checkout mensal aberto na conta recebedora: cartão e boleto exibidos, total R$ 21,90. Pix não apareceu. A documentação oficial exige chave Pix cadastrada na conta recebedora; esse requisito ainda precisa ser conferido pelo titular. Nenhuma compra foi concluída ou boleto emitido. Deploy concluído; 260 testes locais passaram e a validação do GitHub passou no commit 7eb7549.
+Após o cadastro da chave pelo titular, o checkout mensal foi reaberto pelo AgendaFácil: Pix, cartão e boleto exibidos, total R$ 21,90, sem login do comprador no Mercado Pago. A chave não foi incluída no código ou na documentação. Nenhuma compra foi concluída ou boleto emitido. Deploy concluído; 260 testes locais passaram e a validação do GitHub passou no commit 7eb7549.
 
